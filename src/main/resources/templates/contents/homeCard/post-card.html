@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Card</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+</head>
+<body>
+<div th:fragment="card(title, writer, comment, boardname, thumbs)" class="card">
+    <div class="card-header">
+        <div class="card-title" th:text="${title}">タイトル</div>
+        <div class="card-board" th:text="${boardname}">自由掲示板</div>
+    </div>
+
+    <div class="card-meta">
+        <span class="card-writer" th:text="${writer}">投稿者</span>
+        <div class="card-stats">
+            <span>👍 <span th:text="${thumbs}">0</span></span>
+            <span>💬 <span th:text="${comment}">0</span></span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

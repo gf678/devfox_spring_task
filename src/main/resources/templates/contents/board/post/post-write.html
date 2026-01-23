@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>post write</title>
+    <link rel="stylesheet" th:href="@{/css/post.css}">
+</head>
+<body>
+<div th:fragment="post-write">
+    <div class="write-container">
+        <h2 class="write-header-title"
+            th:text="${postForm.postId != null} ? ${boardName} + ' 掲示板投稿修正' : ${boardName} + ' 掲示板投稿作成'">
+            新規投稿
+        </h2>
+
+        <form th:action="${postForm.postId != null} ? @{/board/{bn}/update/{pid}(bn=${boardName}, pid=${postForm.postId})} : @{/board/{bn}/save(bn=${boardName})}"
+              th:object="${postForm}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <input type="hidden" th:field="*{postId}">
+
+            <div class="write-section">
+                <input type="text" th:field="*{title}" class="write-input-title" placeholder="タイトルを入力してください" required>
+            </div>
+
+            <div class="write-section">
+                <div class="image-upload-wrapper" onclick="document.getElementById('file-input').click()">
+                    <div class="upload-icon">📸</div>
+                    <p class="upload-text">クリックするか、画像をドラッグしてください</p>
+                    <p class="upload-subtext">（最大5MB、JPG、PNG）</p>
+                    <input type="file" id="file-input" name="images" multiple accept="image/*" style="display: none;" onchange="previewImages(this)">
+                </div>
+                <div id="image-preview-container" class="preview-container"></div>
+            </div>
+
+            <div class="write-section">
+                <textarea th:field="*{content}" class="write-textarea-content" placeholder="内容を入力してください。" required></textarea>
+            </div>
+
+            <div class="write-footer">
+                <button type="button" class="btn-sub"
+                        th:data-url="|/board/${boardName}/list|"
+                        onclick="location.href=this.getAttribute('data-url')">キャンセル</button>
+                <button type="submit" class="btn-main" th:text="${postForm.postId != null} ? '修正' : '投稿'">投稿</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function previewImages(input) {
+            const container = document.getElementById('image-preview-container');
+            container.innerHTML = '';
+            if (input.files) {
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'preview-item';
+                        div.innerHTML = `<img src="${e.target.result}" style="width:100px; height:100px; object-fit:cover;"><span class="remove-btn" onclick="this.parentElement.remove()" style="cursor:pointer;">✕</span>`;
+                        container.appendChild(div);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+    </script>
+</div>
+</body>
+</html>

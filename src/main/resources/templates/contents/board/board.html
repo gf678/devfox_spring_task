@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>board</title>
+    <link rel="stylesheet" th:href="@{/css/board.css}">
+</head>
+<body>
+    <div th:fragment="board" class="page-wrapper">
+        <div class="board-container">
+            <div class="board-header">
+                <h2 th:text="${boardName}">掲示板名</h2>
+                <p class="board-description" th:text="${description}">説明文</p>
+            </div>
+
+            <div class="post-list-wrap">
+                <div th:replace="~{'contents/board/post/' + ${boardContent} :: ${boardContent}}"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

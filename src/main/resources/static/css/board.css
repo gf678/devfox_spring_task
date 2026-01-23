@@ -1,0 +1,275 @@
+/* board.css */
+
+/* 1. レイアウト：全体を左寄せ */
+.page-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    background-color: #ffffff;
+}
+
+.board-container {
+    width: 100%;
+    max-width: 1050px;
+    margin: 40px 0 40px 60px;
+    padding: 0;
+}
+
+/* 2. 掲示板ヘッダー：タイトルと説明の間隔を縮小 */
+.board-header {
+    margin-bottom: 15px;
+}
+
+.board-container h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 2px;
+}
+
+.board-description {
+    font-size: 15px;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* 3. 説明と一覧の間の太い区切り線 */
+.post-list-wrap {
+    border-top: 3px solid #111827;
+    padding-top: 5px;
+}
+
+/* 4. 投稿リストのスタイル（1行表示） */
+.post-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 10px;
+    border-bottom: 1px solid #eeeeee;
+    transition: background-color 0.1s ease;
+}
+
+.post-row:hover {
+    background-color: #f9fafb;
+}
+
+/* 左側：タイトル＋コメント数 */
+.post-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+}
+
+.post-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #1f2937;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.post-title:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.post-comments {
+    font-size: 13px;
+    color: #2563eb;
+    font-weight: 600;
+}
+
+/* 右側：メタ情報 */
+.post-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 14px;
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+/* 5. 下部エリアのスタイル */
+.board-footer-area {
+    margin-top: -1px;
+}
+
+.board-footer-line {
+    border-top: 1px solid #eeeeee;
+    margin-bottom: 20px;
+}
+
+.board-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative; /* 검색창 중앙 정렬용 */
+    height: 40px;
+}
+
+.control-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.search-form {
+    display: flex;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.search-form input {
+    border: none;
+    padding: 6px 12px;
+    font-size: 14px;
+    outline: none;
+    width: 180px;
+}
+
+.search-form button {
+    background: #f9fafb;
+    border: none;
+    border-left: 1px solid #e5e7eb;
+    padding: 0 12px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #4b5563;
+}
+
+.search-form button:hover {
+    background: #f3f4f6;
+}
+
+/* ボタンスタイル（Homeカラー継承） */
+.btn-main {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-main:hover {
+    background: #1d4ed8;
+}
+
+.btn-sub {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #4b5563;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-sub:hover {
+    background: #f9fafb;
+}
+
+.view-count-selector {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.view-count-selector button {
+    background: none;
+    border: 1px solid #e5e7eb;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: #9ca3af;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.view-count-selector button.active {
+    color: #111827;
+    border-color: #111827;
+    font-weight: 700;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 30px 0;
+}
+
+.page-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    color: #4b5563;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.page-link:hover {
+    background-color: #f3f4f6;
+    color: #2563eb;
+}
+
+.page-link.active {
+    background-color: #2563eb;
+    color: white;
+    font-weight: 600;
+}
+
+.page-link.prev, .page-link.next {
+    color: #9ca3af;
+}
+
+.board-footer-area {
+    margin-top: 10px;
+}
+.view-count-selector {
+    display: flex;
+    gap: 0; /
+    margin-bottom: 8px;
+}
+
+.view-count-selector button {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.view-count-selector button:first-child {
+    border-radius: 4px 0 0 4px;
+}
+.view-count-selector button:last-child {
+    border-radius: 0 4px 4px 0;
+    border-left: none;
+
+.view-count-selector button.active {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+    font-weight: 700;
+    z-index: 1;
+}
+
+.view-count-selector button:hover:not(.active) {
+    background-color: #f9fafb;
+}
+}

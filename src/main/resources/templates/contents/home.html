@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>home</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+</head>
+<body>
+    <div th:fragment="home" class="home-container">
+
+        <section class="home-section">
+            <h2>🔥 人気投稿</h2>
+            <div class="card-grid">
+                <div th:replace="~{contents/homeCard/post-card :: card(title='開発中', writer='..', boardname='..' , thumbs='1', comment='1')}"></div>
+                <div th:replace="~{contents/homeCard/post-card :: card(title='開発中', writer='..', boardname='..' , thumbs='1', comment='1')}"></div>
+                <div th:replace="~{contents/homeCard/post-card :: card(title='開発中', writer='..', boardname='..' , thumbs='1', comment='1')}"></div>
+                <div th:replace="~{contents/homeCard/post-card :: card(title='開発中', writer='..', boardname='..' , thumbs='1', comment='1')}"></div>
+            </div>
+        </section>
+
+        <section class="home-section">
+            <h2>📌 掲示板</h2>
+            <div class="board-card-grid">
+                <th:block th:if="${boards != null}">
+                    <th:block th:each="b : ${boards}" th:if="${b != null}">
+                        <div th:replace="~{contents/homeCard/board-card :: card(
+                    boardTitle=${b.name},
+                    posts=${boardMap.get(b.name)}
+                )}"></div>
+                    </th:block>
+                </th:block>
+            </div>
+        </section>
+
+    </div>
+</body>
+</html>

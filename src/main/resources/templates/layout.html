@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>홈</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link rel="stylesheet" th:href="@{/css/board.css}">
+    <link rel="stylesheet" th:href="@{/css/post.css}">
+
+    <script th:src="@{/js/header.js}" defer></script>
+</head>
+<body class="page-container">
+
+<!-- header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- body -->
+<div class="content-wrap" th:insert="~{__${content}__}"></div>
+
+<!-- footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

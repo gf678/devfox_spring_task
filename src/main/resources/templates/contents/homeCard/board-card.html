@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="card(boardTitle, posts)" class="board-card">
+    <div class="board-title">
+        <a th:href="@{/board/{bn}/list(bn=${boardTitle})}"
+           th:text="${boardTitle}"
+           style="text-decoration:none; color:inherit;">자유게시판</a>
+    </div>
+
+    <ul class="board-post-list">
+        <th:block th:if="${posts != null and !posts.isEmpty()}">
+            <li th:each="post : ${posts}">
+                <a th:href="@{/board/{bn}/post/{pid}(bn=${boardTitle}, pid=${post.postId})}" class="post-item-link">
+                    <span class="post-item-title" th:text="${post.title}">タイトル</span>
+
+                    <div class="post-item-meta">
+                        <span class="meta-author" th:text="${post.user != null ? post.user.nickname : '匿名'}">投稿者</span>
+
+                        <span class="meta-date" th:text="${#temporals.format(post.createdAt, 'MM.dd')}">date</span>
+
+                        <div class="meta-stats">
+                            <span class="stats-likes">👍 <th:block th:text="${post.likes}">0</th:block></span>
+                            <span class="stats-views">👁️ <th:block th:text="${post.views}">0</th:block></span>
+                        </div>
+                    </div>
+                </a>
+            </li>
+        </th:block>
+
+        <li th:if="${posts == null or posts.isEmpty()}" class="no-post">
+            지금은 게시글이 없습니다. 🐥
+        </li>
+    </ul>
+</div>
+</body>
+</html>

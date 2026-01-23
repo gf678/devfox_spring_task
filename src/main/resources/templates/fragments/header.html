@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>header</title>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <script th:src="@{/js/header.js}" defer></script>
+</head>
+<body>
+
+<header th:fragment="header" class="site-header">
+    <div class="header-title">
+        <a th:href="@{/}">
+            <img th:src="@{/img/icon_page.png}" alt="로고" class="logo">
+        </a>
+        <div class="header-links">
+            <a href="#">全体チャンネル</a>
+            <a href="#">お気に入りチャンネル</a>
+        </div>
+        <div class="search">
+            <input type="text" placeholder="チャンネル検索">
+            <button class="search-btn" type="button">
+                <img src="https://s3.ap-northeast-2.amazonaws.com/cdn.wecode.co.kr/icon/search.png" alt="検索">
+            </button>
+        </div>
+
+        <img th:src="@{/img/icon_alarm.png}" alt="通知アイコン" class="alarm-icon">
+
+        <div class="profile" id="profile-pic">
+            <img th:src="@{/img/default_profile.png}" alt="ユーザープロフィール">
+            <div class="profile-menu">
+                <p>マイ情報</p>
+                <p>設定</p>
+                <p>ログアウト</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+</body>
+</html>
