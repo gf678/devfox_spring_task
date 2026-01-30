@@ -5,118 +5,154 @@ import com.littlestar.task.entity.Board;
 import com.littlestar.task.entity.Post;
 import com.littlestar.task.repository.BoardRepository;
 import com.littlestar.task.repository.PostRepository;
+import com.littlestar.task.repository.SubscriptionRepository;
+import com.littlestar.task.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.security.Principal;
 
 @Controller
+@RequestMapping("/board/{boardName}")
 @RequiredArgsConstructor
 public class BoardController {
 
     private final PostRepository postRepository;
     private final BoardRepository boardRepository;
+    private final UserRepository userRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
-    //掲示板履歴コントローラー
-    @GetMapping("/board/{boardName}/list")
-    String board(@PathVariable String boardName, Model model) {
+    // ヘッダー・フッター用Viewモデル挿入クラス
+    private void addBoardInfoToModel(String boardName, Principal principal, Model model) {
+        // DBで掲示板の存在有無を確認
+        Board board = boardRepository.findByName(boardName)
+                .orElseThrow(() -> new RuntimeException("掲示板が見つかりません： " + boardName));
 
-        // 1. 掲示板名で掲示板情報を取得
-        Board boardInfo = boardRepository.findByName(boardName)
-                .orElseThrow(() -> new RuntimeException("掲示板が見つかりません: " + boardName));
+        // ログイン状態の場合、そのユーザーがこの掲示板を購読しているか確認
+        boolean isSubscribed = false;
+        if (principal != null) {
+            isSubscribed = userRepository.findByLoginId(principal.getName())
+                    .map(user -> subscriptionRepository.existsByUserAndBoard(user, board))
+                    .orElse(false);
+        }
 
-        // 2. 掲示板名で投稿一覧を取得
-        List<Post> posts = postRepository.findByBoard_NameOrderByCreatedAtDesc(boardName);
-
-        // 3. モデルにデータを格納
+        // ビューで共通的に使用する属性を追加
         model.addAttribute("boardName", boardName);
-        model.addAttribute("boardId", boardInfo.getBoardId());
-        model.addAttribute("posts", posts);
-        model.addAttribute("pageSize", 15);
+        model.addAttribute("boardId", board.getBoardId());
+        model.addAttribute("description", board.getDescription());
+        model.addAttribute("isSubscribed", isSubscribed);
 
-        // 説明文をDBから取得
-        model.addAttribute("description", boardInfo.getDescription());
-        // ボディレンダリング
-        model.addAttribute("boardContent", "post-list");
+        // Thymeleafレイアウト構造で本文として使用するフラグメントのパスを設定
         model.addAttribute("content", "contents/board/board :: board");
+    }
+
+    //投稿一覧
+    @GetMapping("/list")
+    public String boardList(@PathVariable String boardName,
+                            @RequestParam(value = "page", defaultValue = "0") int page, //paging
+                            @RequestParam(value = "size", defaultValue = "15") int size, // 1ページあたりの投稿数
+                            @RequestParam(value = "keyword", required = false) String keyword, // 検索用キーワード
+                            @RequestParam(value = "sort", required = false) String sort, // 一般投稿・人気投稿分類用
+                            Model model, Principal principal) {
+
+        // 共通掲示板情報の注入
+        addBoardInfoToModel(boardName, principal, model);
+
+        // ページング設定：最新順にソート
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> paging;
+
+        // 人気投稿のソート
+        if ("popular".equals(sort)) {
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                // 人気投稿 - 検索
+                paging = postRepository.findByBoard_NameAndLikesGreaterThanEqualAndTitleContainingOrderByCreatedAtDesc(
+                        boardName, 10, keyword, pageable);
+            } else {
+                // 人気投稿 - デフォルト
+                paging = postRepository.findByBoard_NameAndLikesGreaterThanEqualOrderByCreatedAtDesc(
+                        boardName, 10, pageable);
+            }
+        }
+        // 一般投稿のソート
+        else if (keyword != null && !keyword.trim().isEmpty()) {
+            // 一般投稿 - 検索
+            paging = postRepository.findByBoard_NameAndTitleContainingOrderByCreatedAtDesc(boardName, keyword, pageable);
+        } else {
+            // 一般投稿 - デフォルト
+            paging = postRepository.findByBoard_NameOrderByCreatedAtDesc(boardName, pageable);
+        }
+
+        // ビューで共通的に使用する属性を追加
+        model.addAttribute("paging", paging);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("sort", sort);
+        model.addAttribute("boardContent", "post-list");
 
         return "layout";
     }
 
-    //Read
-    // 投稿コントローラー
-    @GetMapping("/board/{boardName}/post/{postId}")
-    public String postView(@PathVariable String boardName, @PathVariable Long postId, Model model) {
+    //投稿表示
+    @GetMapping("/post/{postId}")
+    public String postView(@PathVariable String boardName, @PathVariable Long postId,
+                           Model model, Principal principal) {
 
-        // 1. 実際のDBから投稿を取得
+        addBoardInfoToModel(boardName, principal, model);
+
+        // 投稿の詳細情報を取得
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("該当する投稿が見つかりません。"));
+                .orElseThrow(() -> new RuntimeException("投稿が見つかりません。"));
 
-        // 2. 掲示板情報の確認（アドレスバーのboardNameと実際の投稿の掲示板が一致するか確認用）
-        Board boardInfo = boardRepository.findByName(boardName)
-                .orElseThrow(() -> new RuntimeException("掲示板が見つかりません。"));
-
-        // 3. 閲覧数増加ロジック
+        // 閲覧数を増加
         post.setViews(post.getViews() + 1);
         postRepository.save(post);
 
-        // 4. モデルに実際のデータを格納
         model.addAttribute("post", post);
-        model.addAttribute("boardName", boardName);
-        model.addAttribute("boardId", boardInfo.getBoardId());
-
-        model.addAttribute("description", boardInfo.getDescription());
-        // ボディレンダリング
-        model.addAttribute("boardContent", "post");
-        model.addAttribute("content", "contents/board/board :: board");
+        model.addAttribute("boardContent", "post"); // post.html 조각을 렌더링
 
         return "layout";
     }
 
-    //Read
-    // 投稿作成ページコントローラー
-    @GetMapping("/board/{boardName}/write")
-    public String writeForm(@PathVariable String boardName, Model model) {
-        Board boardInfo = boardRepository.findByName(boardName)
-                .orElseThrow(() -> new RuntimeException("掲示板が見つかりません。: " + boardName));
+    // 投稿作成ページ
+    @GetMapping("/write")
+    public String writeForm(@PathVariable String boardName, Model model, Principal principal) {
+        addBoardInfoToModel(boardName, principal, model);
 
-        model.addAttribute("boardName", boardName);
-        model.addAttribute("boardTitle", boardInfo.getName());
 
-        // [수정] updateForm과 이름을 맞추기 위해 "postForm"으로 전달
-        // 새 글이므로 postId는 null인 상태로 전달됩니다.
-        model.addAttribute("postForm", new PostForm());
-
-        model.addAttribute("boardContent", "post-write");
-        model.addAttribute("content", "contents/board/board :: board");
+        model.addAttribute("postForm", new PostForm()); // 投稿保存用の空DTOオブジェクトを渡す
+        model.addAttribute("boardContent", "post-write"); // ボディを投稿作成用HTMLに差し替え
 
         return "layout";
     }
-    // 投稿作成ページコントローラー
-    @GetMapping("/board/{boardName}/update/{postId}")
-    public String updateForm(@PathVariable String boardName,
-                             @PathVariable Long postId,
-                             Model model) {
 
-        // 1. 기존 게시글을 DB에서 조회
+    // 既存投稿の編集
+    @GetMapping("/update/{postId}")
+    public String updateForm(@PathVariable String boardName, @PathVariable Long postId,
+                             Model model, Principal principal) {
+
+        addBoardInfoToModel(boardName, principal, model);
+
+        // 編集対象の元投稿を取得
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("投稿が見つかりません。"));
 
-        // 2. [핵심] 조회한 데이터를 PostForm 가방에 수동으로 넣어줘야 함!
+        // 未ログイン、またはログインユーザーと作成者が異なる場合は一覧にリダイレクト
+        if (principal == null || !post.getUser().getLoginId().equals(principal.getName())) {
+            return "redirect:/board/" + boardName + "/list";
+        }
+
+        // 既存データを修正
         PostForm form = new PostForm();
         form.setPostId(post.getPostId());
-        form.setTitle(post.getTitle());     // 이게 빠지면 제목이 안 나옵니다.
-        form.setContent(post.getContent()); // 이게 빠지면 내용이 안 나옵니다.
+        form.setTitle(post.getTitle());
+        form.setContent(post.getContent());
 
-        // 3. 모델에 "postForm"이라는 이름으로 전달
-        model.addAttribute("postForm", form);
-        model.addAttribute("boardName", boardName);
-
-        // 나머지 속성들 설정...
+        model.addAttribute("postForm", form); // 値が入力されたフォームを渡す
         model.addAttribute("boardContent", "post-write");
-        model.addAttribute("content", "contents/board/board :: board");
 
         return "layout";
     }

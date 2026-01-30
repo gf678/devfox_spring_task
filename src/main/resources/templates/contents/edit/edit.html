@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>My Page</title>
+  <link rel="stylesheet" th:href="@{/css/board.css}"> </head>
+<body>
+<div th:fragment="user-edit" class="page-wrapper">
+  <div class="board-container" style="max-width: 600px;"> <div class="board-header">
+    <h2>マイ情報修正</h2>
+    <p class="board-description">プロフィールの情報を自由に変更できます。</p>
+  </div>
+
+    <form th:action="@{/user/edit}" th:object="${userEditForm}" method="post" enctype="multipart/form-data">
+
+      <div style="background: #f9fafb; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 25px; border: 1px dashed #ddd;">
+        <div style="position: relative; display: inline-block;">
+          <img th:src="${userEditForm.profileImg != null ? userEditForm.profileImg : '/img/default_profile.png'}"
+               id="preview"
+               style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+
+          <label for="image-upload" style="position: absolute; bottom: 0; right: 0; background: #6366f1; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #fff;">
+            <span style="font-size: 1.2rem;">+</span>
+          </label>
+        </div>
+        <input type="file" id="image-upload" name="imageFile" style="display: none;" onchange="previewImage(this)">
+        <p style="margin-top: 10px; font-size: 0.85rem; color: #6b7280;">クリックして写真を変更</p>
+      </div>
+
+      <div class="post-list-wrap" style="border-top: none;">
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; font-weight: 600; margin-bottom: 5px;">ニックネーム</label>
+          <input type="text" th:field="*{alias}" required class="form-control"
+                 style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px;">
+        </div>
+
+        <div style="margin-bottom: 25px;">
+          <label style="display: block; font-weight: 600; margin-bottom: 5px;">新しいパスワード</label>
+          <input type="password" th:field="*{password}" placeholder="変更する場合のみ入力" class="form-control"
+                 style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px;">
+        </div>
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; font-weight: 600; margin-bottom: 5px;">メールアドレス</label>
+          <input type="email" th:field="*{email}" required class="form-control"
+                 style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; font-weight: 600; margin-bottom: 5px;">電話番号</label>
+          <input type="tel" th:field="*{phone}" class="form-control"
+                 style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px;">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button type="submit" class="btn-main" style="flex: 2; padding: 14px; background: #111827; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+          保存する
+        </button>
+        <button type="button"
+                th:onclick="|location.href='@{/}'|"
+                style="flex: 1; padding: 14px; background: #f3f4f6; border: none; border-radius: 8px; cursor: pointer;">
+          キャンセル
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script th:inline="javascript">
+    function previewImage(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('preview').src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+  </script>
+</div>
+</body>
+</html>

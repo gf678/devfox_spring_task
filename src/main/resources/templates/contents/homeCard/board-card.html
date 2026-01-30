@@ -15,7 +15,7 @@
                     <span class="post-item-title" th:text="${post.title}">タイトル</span>
 
                     <div class="post-item-meta">
-                        <span class="meta-author" th:text="${post.user != null ? post.user.nickname : '匿名'}">投稿者</span>
+                        <span class="meta-author" th:text="${post.user != null ? post.user.alias : '匿名'}">投稿者</span>
 
                         <span class="meta-date" th:text="${#temporals.format(post.createdAt, 'MM.dd')}">date</span>
 
@@ -29,7 +29,7 @@
         </th:block>
 
         <li th:if="${posts == null or posts.isEmpty()}" class="no-post">
-            지금은 게시글이 없습니다. 🐥
+            <a th:href="@{/board/{bn}/write(bn=${boardTitle})}" class="post-item-link">最初の投稿を書いてみましょう！ 🐥</a>
         </li>
     </ul>
 </div>

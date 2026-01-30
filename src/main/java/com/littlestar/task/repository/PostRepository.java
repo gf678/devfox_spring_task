@@ -2,27 +2,32 @@ package com.littlestar.task.repository;
 
 import com.littlestar.task.entity.Board;
 import com.littlestar.task.entity.Post;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+// PostデータにアクセスするためのJPAリポジトリ
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
+    // 特定の掲示板名で投稿を作成日降順でページング取得
+    Page<Post> findByBoard_NameOrderByCreatedAtDesc(String boardName, Pageable pageable);
 
-    // 特定の掲示板の投稿リストを照会します。(作成日の降順)
-    List<Post> findByBoard_NameOrderByCreatedAtDesc(String boardName);
+    // 特定の掲示板でタイトルに特定のキーワードを含む投稿を作成日降順でページング取得
+    Page<Post> findByBoard_NameAndTitleContainingOrderByCreatedAtDesc(String boardName, String title, Pageable pageable);
 
-    // 特定の掲示板の最新投稿を10件取得します。(ホーム画面用)
+    // 特定の掲示板で最新10件の投稿を取得
     List<Post> findTop10ByBoardOrderByCreatedAtDesc(Board board);
 
-    // タイトルのキーワード検索を行います。
-    List<Post> findByTitleContaining(String keyword);
+    // いいね数が特定の閾値以上の投稿上位10件を取得
+    List<Post> findTop10ByLikesGreaterThanOrderByLikesDesc(int likesThreshold);
 
-    // 特定のユーザーが作成した投稿リストを照会します。
-    List<Post> findByUser_Id(Long userId);
+    // 特定の掲示板でいいね数が一定以上の投稿を作成日降順でページング取得
+    Page<Post> findByBoard_NameAndLikesGreaterThanEqualOrderByCreatedAtDesc(String boardName, int likes, Pageable pageable);
 
-    // タイトルに基づいて投稿を削除します。
-    void deleteByTitle(String title);
+    // 特定の掲示板でいいね数が一定以上かつタイトルにキーワードを含む投稿を作成日降順でページング取得
+    Page<Post> findByBoard_NameAndLikesGreaterThanEqualAndTitleContainingOrderByCreatedAtDesc(String boardName, int likes, String keyword, Pageable pageable);
 }

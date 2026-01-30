@@ -7,31 +7,74 @@
     <script th:src="@{/js/header.js}" defer></script>
 </head>
 <body>
-
 <header th:fragment="header" class="site-header">
     <div class="header-title">
         <a th:href="@{/}">
             <img th:src="@{/img/icon_page.png}" alt="로고" class="logo">
         </a>
+
         <div class="header-links">
-            <a href="#">全体チャンネル</a>
-            <a href="#">お気に入りチャンネル</a>
+            <div class="dropdown">
+                <a href="javascript:void(0)" class="dropdown-toggle" onclick="toggleMenu('channel-dropdown', event)">全体チャンネル</a>
+                <div class="dropdown-menu" id="channel-dropdown">
+                    <th:block th:each="board : ${allBoards}">
+                        <a th:href="@{/board/{name}/list(name=${board.name})}" class="channel-item">
+                            <span th:text="${board.name}">게시판 이름</span>
+                        </a>
+                    </th:block>
+                    <div th:if="${#lists.isEmpty(allBoards)}" class="no-board">チャンネルがありません。</div>
+                </div>
+            </div>
+
+            <div class="dropdown" th:if="${#authorization.expression('isAuthenticated()')}">
+                <a href="javascript:void(0)" class="dropdown-toggle" onclick="toggleMenu('favorite-dropdown', event)">お気に入り</a>
+                <div class="dropdown-menu" id="favorite-dropdown">
+                    <th:block th:if="${not #lists.isEmpty(subscribedBoards)}">
+                        <a th:each="board : ${subscribedBoards}" th:href="@{/board/{name}/list(name=${board.name})}"
+                           th:text="${board.name}" class="channel-item"></a>
+                    </th:block>
+                    <div th:if="${#lists.isEmpty(subscribedBoards)}" class="no-board">購読中のチャンネルはありません。</div>
+                </div>
+            </div>
         </div>
+
         <div class="search">
-            <input type="text" placeholder="チャンネル検索">
+            <input type="text" id="channel-search-input" placeholder="チャンネル検索" autocomplete="off">
             <button class="search-btn" type="button">
                 <img src="https://s3.ap-northeast-2.amazonaws.com/cdn.wecode.co.kr/icon/search.png" alt="検索">
             </button>
+
+            <div id="search-results" class="dropdown-menu search-dropdown">
+            </div>
         </div>
 
-        <img th:src="@{/img/icon_alarm.png}" alt="通知アイコン" class="alarm-icon">
+        <div class="right-group">
+            <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-section">
+                <img th:src="@{/img/icon_alarm.png}" alt="通知アイコン" class="alarm-icon">
+                <div class="profile" id="profile-pic" onclick="toggleMenu('profile-menu', event)">
+                    <img th:src="${user?.profileImg != null ? user.profileImg : (#authentication.principal != 'anonymousUser' and #authentication.principal.profileImg != null ? #authentication.principal.profileImg : '/img/default_profile.png')}"
+                         alt="ユーザープロフィール">
+                    <div class="profile-menu" id="profile-menu">
+                        <p><b th:text="${#authentication.name}">ユーザー</b>様</p>
+                        <hr>
+                        <div th:if="${#authorization.expression('hasAuthority(''ADMIN'')') or #authorization.expression('hasAuthority(''ROLE_ADMIN'')')}">
+                            <p><a th:href="@{/admin/boards}" style="color: #6366f1; font-weight: bold; text-decoration: none;">🛠 管理者ページ</a></p>
+                            <hr>
+                        </div>
+                        <p th:data-url="@{user/edit}"
+                           onclick="location.href=this.getAttribute('data-url')"
+                           style="cursor: pointer;">
+                            マイ情報
+                        </p>
+                        <form th:action="@{/api/logout}" method="post" style="margin:0;">
+                            <button type="submit" class="logout-btn">ログアウト</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-        <div class="profile" id="profile-pic">
-            <img th:src="@{/img/default_profile.png}" alt="ユーザープロフィール">
-            <div class="profile-menu">
-                <p>マイ情報</p>
-                <p>設定</p>
-                <p>ログアウト</p>
+            <div th:unless="${#authorization.expression('isAuthenticated()')}" class="auth-buttons">
+                <a th:href="@{/login}" class="login-link">ログイン</a>
             </div>
         </div>
     </div>

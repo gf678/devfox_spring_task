@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>홈</title>
+    <title>PLUG</title>
     <link rel="stylesheet" th:href="@{/css/layout.css}">
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
@@ -10,7 +10,13 @@
     <link rel="stylesheet" th:href="@{/css/board.css}">
     <link rel="stylesheet" th:href="@{/css/post.css}">
 
+    <script th:inline="javascript">
+        /* Thymeleafがサーバー認証情報をJSのグローバル変数として宣言 */
+        const isAuthenticated = [[${#authorization.expression('isAuthenticated()')}]];
+    </script>
+
     <script th:src="@{/js/header.js}" defer></script>
+    <script th:src="@{/js/post.js}" defer></script>
 </head>
 <body class="page-container">
 

@@ -3,13 +3,19 @@ package com.littlestar.task.service;
 import com.littlestar.task.domain.PostForm;
 import com.littlestar.task.entity.Board;
 import com.littlestar.task.entity.Post;
+import com.littlestar.task.entity.PostReaction;
 import com.littlestar.task.entity.User;
 import com.littlestar.task.repository.BoardRepository;
+import com.littlestar.task.repository.PostReactionRepository;
 import com.littlestar.task.repository.PostRepository;
 import com.littlestar.task.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -19,36 +25,31 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
+    private final PostReactionRepository postReactionRepository;
 
-    /** 新規投稿を作成し、DBに保存します。*/
+    // 新しい投稿を作成
     @Override
     public void createPost(PostForm form, String boardName, String loginId) {
-        // 1. ユーザーの照会 (テスト用、修正予定)
+        // ユーザーを取得
         User user = userRepository.findByLoginId(loginId)
-                .orElseGet(() -> {
-                    return userRepository.save(User.builder()
-                            .loginId(loginId)
-                            .password("1234")
-                            .nickname("匿名ユーザー")
-                            .email(loginId + "@test.com")
-                            .build());
-                });
+                .orElseThrow(() -> new RuntimeException("該当するユーザーが見つかりません: " + loginId));
 
-        // 2. 掲示板の照会 (掲示板名が一致するか確認)
+        // 掲示板を取得
         Board board = boardRepository.findByName(boardName)
                 .orElseThrow(() -> new RuntimeException("掲示板 '" + boardName + "' が見つかりません。"));
 
-        // 3. エンティティの生成および保存
+        // エンティティ作成およびデータマッピング
         Post post = new Post();
         post.setTitle(form.getTitle());
         post.setContent(form.getContent());
         post.setUser(user);
         post.setBoard(board);
 
+        // 保存
         postRepository.save(post);
     }
 
-    /**既存の投稿内容を修正します。(作成者本人確認を含む)*/
+    // 既存の投稿を更新
     @Override
     public void updatePost(PostForm form, String boardName, String loginId) {
         Post post = postRepository.findById(form.getPostId())
@@ -59,12 +60,12 @@ public class PostServiceImpl implements PostService {
             throw new RuntimeException("修正権限がありません。");
         }
 
-        // ダーティチェッキング(Dirty Checking)による更新
+        // ダーティチェッキングによる更新
         post.setTitle(form.getTitle());
         post.setContent(form.getContent());
     }
 
-    /** 指定された投稿を削除します。(作成者本人確認を含む) */
+    // 特定の投稿を削除
     @Override
     public void deletePost(Long postId, String loginId) {
         Post post = postRepository.findById(postId)
@@ -75,5 +76,40 @@ public class PostServiceImpl implements PostService {
             throw new RuntimeException("削除権限がありません。");
         }
         postRepository.delete(post);
+    }
+
+    // 投稿に対するリアクションを更新
+    @Override
+    @Transactional
+    public Map<String, Integer> updateReaction(Long postId, String type, String loginId) {
+        Post post = postRepository.findById(postId).orElseThrow();
+        User user = userRepository.findByLoginId(loginId).orElseThrow();
+
+        // すでにリアクションがあるか確認
+        Optional<PostReaction> existingReaction = postReactionRepository.findByPostAndUser(post, user);
+
+        if (existingReaction.isPresent()) {
+            // すでにリアクションがある場合は例外
+            throw new IllegalStateException("すでに「いいね」/「よくないね」を押しています。");
+        }
+
+        // 新しいリアクションを保存
+        PostReaction reaction = new PostReaction();
+        reaction.setPost(post);
+        reaction.setUser(user);
+        reaction.setType(type);
+        postReactionRepository.save(reaction);
+
+        // Postエンティティのカウントを更新
+        if ("LIKE".equals(type)) {
+            post.setLikes(post.getLikes() + 1);
+        } else {
+            post.setDislikes(post.getDislikes() + 1);
+        }
+
+        Map<String, Integer> result = new HashMap<>();
+        result.put("likes", post.getLikes());
+        result.put("dislikes", post.getDislikes());
+        return result;
     }
 }

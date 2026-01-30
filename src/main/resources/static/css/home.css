@@ -1,4 +1,6 @@
-
+/* ==========================================================================
+   1. Home Layout
+   ========================================================================== */
 .home-section {
     margin: 32px 0;
     padding: 0 24px;
@@ -8,6 +10,7 @@
     font-size: 20px;
     margin-bottom: 16px;
     font-weight: 600;
+    color: #111827;
 }
 
 .card-grid {
@@ -16,6 +19,15 @@
     gap: 16px;
 }
 
+.board-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+/* ==========================================================================
+   2. Post Card
+   ========================================================================== */
 .card {
     background: white;
     border: 1px solid #e5e7eb;
@@ -23,99 +35,81 @@
     padding: 14px 16px;
     transition: all 0.15s ease;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-color: #6366f1;
 }
+
 .card-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
+    align-items: flex-start;
 }
 
 .card-title {
     font-size: 15px;
     font-weight: 600;
+    line-height: 1.4;
+    color: #1f2937;
 }
 
 .card-board {
     font-size: 11px;
-    color: #9ca3af;
-    background: #f3f4f6;
+    color: #6366f1;
+    background: #eef2ff;
     padding: 2px 6px;
-    border-radius: 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    flex-shrink: 0;
 }
 
 .card-meta {
     font-size: 12px;
-    color: #6b7280;
+    color: #9ca3af;
     display: flex;
+    justify-content: space-between;
     align-items: center;
+    margin-top: auto;
 }
 
 .card-stats {
-    margin-left: auto;
     display: flex;
     gap: 10px;
 }
-/** board-card **/
+
+/* ==========================================================================
+   3. Board Preview Card
+   ========================================================================= */
 .board-card {
     background: white;
     border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 14px 16px;
-}
-
-.board-title {
-    font-size: 15px;
-    font-weight: 600;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #e5e7eb;
-    margin-bottom: 10px;
-    cursor: pointer;
-}
-
-.board-title:hover {
-    text-decoration: underline;
-}
-
-.board-post-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.board-post-list li {
-    font-size: 13px;
-    color: #374151;
-    padding: 4px 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: pointer;
-}
-
-.board-post-list li:hover {
-    text-decoration: underline;
-}
-
-.board-card-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-}
-.board-card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 14px 16px;
-
+    border-radius: 12px;
+    padding: 16px;
     min-height: 220px;
     display: flex;
     flex-direction: column;
+}
+
+.board-title {
+    font-size: 16px;
+    font-weight: 700;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f3f4f6;
+    margin-bottom: 12px;
+    color: #111827;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.board-title:hover {
+    color: #6366f1;
+    text-decoration: underline;
 }
 
 .board-post-list {
@@ -125,18 +119,33 @@
     flex-grow: 1;
 }
 
+.board-post-list li {
+    padding: 6px 0;
+    border-bottom: 1px solid #f9fafb;
+}
+
+.board-post-list li:last-child {
+    border-bottom: none;
+}
+
 .post-item-link {
     display: flex;
     justify-content: space-between;
     align-items: center;
     text-decoration: none;
-    color: inherit;
+    color: #374151;
     width: 100%;
-    gap: 10px;
+    gap: 12px;
+}
+
+.post-item-link:hover .post-item-title {
+    color: #6366f1;
+    text-decoration: underline;
 }
 
 .post-item-title {
     flex: 1;
+    font-size: 13px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -151,11 +160,5 @@
     flex-shrink: 0;
 }
 
-.meta-stats {
-    display: flex;
-    gap: 8px;
-}
-
-.stats-likes {
-    color: #ef4444;
-}
+.stats-likes { color: #ef4444; font-weight: 600; }
+.stats-views { color: #9ca3af; }

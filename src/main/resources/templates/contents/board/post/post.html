@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang=jp xmlns:th="http://www.thymeleaf.org">
+<html lang="jp" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>投稿詳細</title>
     <link rel="stylesheet" th:href="@{/css/post.css}">
 </head>
 <body>
@@ -10,7 +11,7 @@
     <div class="post-detail-header">
         <h2 th:text="${post.title}" class="detail-title">投稿タイトルです。</h2>
         <div class="detail-meta">
-            <span class="detail-writer" th:text="${post.user != null ? post.user.nickname : '匿名'}">投稿者</span>
+            <span class="detail-writer" th:text="${post.user != null ? post.user.alias : '匿名'}">投稿者</span>
             <span class="meta-divider">|</span>
             <span class="detail-date" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">2026-01-22 14:30</span>
             <span class="meta-divider">|</span>
@@ -45,11 +46,18 @@
         <div class="post-detail-actions" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
 
             <button class="btn-sub"
+                    th:if="${#authentication.name == post.user.loginId}"
                     th:data-url="|/board/${boardName}/update/${post.postId}|"
                     onclick="location.href=this.getAttribute('data-url')">編集</button>
 
             <form th:action="@{/board/{bn}/delete/{pid}(bn=${boardName}, pid=${post.postId})}"
-                  method="post" style="display: inline;" id="deleteForm">
+                  method="post"
+                  style="display: inline;"
+                  id="deleteForm"
+                  th:if="${#authentication.name == post.user.loginId or
+               #authorization.expression('hasAuthority(''ADMIN'')') or
+               #authorization.expression('hasAuthority(''MODERATOR'')')}">
+
                 <button type="button" class="btn-sub"
                         onclick="if(confirm('本当に削除してもよろしいですか？')) document.getElementById('deleteForm').submit();">
                     削除
@@ -63,17 +71,65 @@
     </div>
 
     <div class="comments-section" style="margin-top: 50px;">
-        <h3>댓글 <span th:text="${post.comments != null ? post.comments.size() : 0}">0</span></h3>
+        <h3>コメント <span th:text="${post.comments != null ? post.comments.size() : 0}">0</span></h3>
         <div class="board-footer-line" style="margin-top: 15px;"></div>
 
-        <div th:each="comment : ${post.comments}" style="padding: 15px 0; border-bottom: 1px solid #eee;">
-            <div style="font-weight: bold; margin-bottom: 5px;" th:text="${comment.user.nickname}">コメント投稿者</div>
-            <div th:text="${comment.content}">コメント内容です。</div>
-            <div style="font-size: 0.8rem; color: #9ca3af;" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">時間</div>
+        <div th:if="${post.comments != null and !post.comments.isEmpty()}">
+            <div th:insert="~{::commentTree (${post.comments}, null, 0)}"></div>
         </div>
 
         <div th:if="${post.comments == null or post.comments.isEmpty()}" style="padding: 20px 0; color: #6b7280;">
-            <p>コメント機能開発中</p>
+            <p>まだコメントはありません。最初のコメントを残してみましょう！</p>
+        </div>
+    </div>
+
+    <div th:fragment="commentTree (comments, parentId, depth)">
+        <th:block th:each="comment : ${comments}">
+            <div th:if="${(parentId == null and comment.parent == null) or (comment.parent != null and comment.parent.commentId == parentId)}"
+                 th:style="|padding: 10px 0; border-bottom: ${depth == 0 ? '1px solid #eee' : 'none'}; margin-left: ${depth > 0 ? '30px' : '0px'};|">
+
+                <div style="display: flex; gap: 10px;">
+                    <div th:if="${depth > 0}" style="color: #9ca3af;">ㄴ</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; margin-bottom: 5px;" th:text="${comment.user.alias}">投稿者</div>
+                        <div th:text="${comment.content}">内容</div>
+                        <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 5px;"
+                             th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">時間</div>
+
+                        <div style="margin-top: 5px;">
+                            <button type="button" class="reply-btn"
+                                    th:data-id="${comment.commentId}"
+                                    th:data-alias="${comment.user.alias}"
+                                    style="font-size: 0.7rem; color: #6366f1; cursor: pointer; border: none; background: none; padding: 0;">
+                                返信を書く
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div th:insert="~{::commentTree (${comments}, ${comment.commentId}, ${depth + 1})}"></div>
+            </div>
+        </th:block>
+    </div>
+
+    <div class="comment-write-section" style="margin-top: 30px;">
+        <div id="reply-info" style="display: none; background: #f3f4f6; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+            <span id="reply-target-name" style="font-weight: bold;"></span>さんに返信中...
+            <button type="button" onclick="cancelReply()" style="float: right; border: none; background: none; color: #ef4444; cursor: pointer;">キャンセル</button>
+        </div>
+
+        <div sec:authorize="isAuthenticated()">
+        <textarea id="comment-input" placeholder="コメントを残してください"
+                  style="width: 100%; height: 80px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; resize: none;"></textarea>
+            <div style="text-align: right; margin-top: 10px;">
+                <button id="btn-comment-submit" th:data-post-id="${post.postId}" class="btn-primary"
+                        style="padding: 8px 20px; background: #6366f1; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    投稿
+                </button>
+            </div>
+        </div>
+
+        <div sec:authorize="isAnonymous()" style="padding: 20px; background: #f9fafb; text-align: center; border-radius: 8px;">
+            <p style="margin: 0;">コメントを投稿するには <a th:href="@{/login}" style="color: #6366f1; font-weight: bold;">ログイン</a> が必要です。</p>
         </div>
     </div>
 </div>

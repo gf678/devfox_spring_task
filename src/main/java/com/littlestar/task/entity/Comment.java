@@ -7,39 +7,47 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+// 投稿に付くコメント情報を管理するエンティティ
+// 返信（リプライ）機能のために自己参照構造を含む
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 public class Comment {
 
+    // コメントの固有識別番号
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long commentId; // コメント識別番号 (PK)
+    private Long commentId;
 
-    // 1. Post（投稿）との多対一関係
+    // Postとの多対一(N:1)関係
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false) // DBの外部キーカラム名
+    @JoinColumn(name = "post_id", nullable = false) // データベースの外部キー(FK)列名
     private Post post;
 
-    // 2. User（ユーザー）との多対一関係
+    // Userとの多対一(N:1)関係
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false) // DBの外部キーカラム名
+    @JoinColumn(name = "user_id", nullable = false) // データベースの外部キー(FK)列名
     private User user;
 
-    // 3. 親コメント（自己参照）との多対一関係
+    // 自身との多対一(N:1)関係
+    // 返信機能を実装するため親コメントのIDを保持
+    // 通常コメントの場合、parent_idはnull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id") // 大コメント・返信機能用
+    @JoinColumn(name = "parent_id")
     private Comment parent;
 
+    // コメント本文 (最大1000文字)
     @Column(nullable = false, length = 1000)
-    private String content; // コメント内容
+    private String content;
 
-    private Boolean isDeleted = false; // 削除有無 (初期値false)
+    // 削除フラグ (trueの場合は「削除されたコメントです」と表示)
+    private Boolean isDeleted = false;
 
     @Column(updatable = false)
-    private LocalDateTime createdAt; // 作成日
+    private LocalDateTime createdAt; // コメント作成日時
 
+    // エンティティが初めて保存されるときに実行
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

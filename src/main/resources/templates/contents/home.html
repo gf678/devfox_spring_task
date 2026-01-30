@@ -6,32 +6,38 @@
     <link rel="stylesheet" th:href="@{/css/home.css}">
 </head>
 <body>
-    <div th:fragment="home" class="home-container">
+<div th:fragment="home" class="home-container">
 
-        <section class="home-section">
-            <h2>🔥 人気投稿</h2>
-            <div class="card-grid">
-                <div th:replace="~{contents/homeCard/post-card :: card(title='開発中', writer='..', boardname='..' , thumbs='1', comment='1')}"></div>
-                <div th:replace="~{contents/homeCard/post-card :: card(title='開発中', writer='..', boardname='..' , thumbs='1', comment='1')}"></div>
-                <div th:replace="~{contents/homeCard/post-card :: card(title='開発中', writer='..', boardname='..' , thumbs='1', comment='1')}"></div>
-                <div th:replace="~{contents/homeCard/post-card :: card(title='開発中', writer='..', boardname='..' , thumbs='1', comment='1')}"></div>
-            </div>
-        </section>
-
-        <section class="home-section">
-            <h2>📌 掲示板</h2>
-            <div class="board-card-grid">
-                <th:block th:if="${boards != null}">
-                    <th:block th:each="b : ${boards}" th:if="${b != null}">
-                        <div th:replace="~{contents/homeCard/board-card :: card(
-                    boardTitle=${b.name},
-                    posts=${boardMap.get(b.name)}
+    <section class="home-section" th:if="${popularPosts != null and !popularPosts.isEmpty()}">
+        <h2>🔥 人気投稿 (Best 10)</h2>
+        <div class="card-grid">
+            <div th:each="post : ${popularPosts}" th:remove="tag">
+                <div th:replace="~{contents/homeCard/post-card :: card(
+                    postId=${post.postId},
+                    title=${post.title},
+                    writer=${post.user != null ? post.user.alias : '匿名'},
+                    boardname=${post.board.name},
+                    thumbs=${post.likes},
+                    comment=${post.comments.size()}
                 )}"></div>
-                    </th:block>
-                </th:block>
             </div>
-        </section>
+        </div>
+    </section>
 
-    </div>
+    <section class="home-section">
+        <h2>📌 掲示板</h2>
+        <div class="board-card-grid">
+            <th:block th:if="${boards != null}">
+                <th:block th:each="b : ${boards}" th:if="${b != null}">
+                    <div th:replace="~{contents/homeCard/board-card :: card(
+                            boardTitle=${b.name},
+                            posts=${boardMap.get(b.name)}
+                        )}"></div>
+                </th:block>
+            </th:block>
+        </div>
+    </section>
+
+</div>
 </body>
 </html>

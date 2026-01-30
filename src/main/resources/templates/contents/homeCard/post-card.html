@@ -6,19 +6,24 @@
     <link rel="stylesheet" th:href="@{/css/home.css}">
 </head>
 <body>
-<div th:fragment="card(title, writer, comment, boardname, thumbs)" class="card">
-    <div class="card-header">
-        <div class="card-title" th:text="${title}">タイトル</div>
-        <div class="card-board" th:text="${boardname}">自由掲示板</div>
-    </div>
+<a th:fragment="card(postId, title, writer, comment, boardname, thumbs)"
+   th:href="@{/board/{bn}/post/{pid}(bn=${boardname}, pid=${postId})}"
+   class="card-link" style="text-decoration: none; color: inherit; display: block;">
 
-    <div class="card-meta">
-        <span class="card-writer" th:text="${writer}">投稿者</span>
-        <div class="card-stats">
-            <span>👍 <span th:text="${thumbs}">0</span></span>
-            <span>💬 <span th:text="${comment}">0</span></span>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title" th:text="${title}">タイトル</div>
+            <div class="card-board" th:text="${boardname}">名前</div>
+        </div>
+
+        <div class="card-meta">
+            <span class="card-writer" th:text="${writer}">投稿者</span>
+            <div class="card-stats">
+                <span>👍 <span th:text="${thumbs}">0</span></span>
+                <span>💬 <span th:text="${comment}">0</span></span>
+            </div>
         </div>
     </div>
-</div>
+</a>
 </body>
 </html>

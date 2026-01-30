@@ -2,11 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>post write</title>
-    <link rel="stylesheet" th:href="@{/css/post.css}">
+    <title>投稿作成</title>
 </head>
 <body>
 <div th:fragment="post-write">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/post.css}">
+
     <div class="write-container">
         <h2 class="write-header-title"
             th:text="${postForm.postId != null} ? ${boardName} + ' 掲示板投稿修正' : ${boardName} + ' 掲示板投稿作成'">
@@ -15,8 +19,7 @@
 
         <form th:action="${postForm.postId != null} ? @{/board/{bn}/update/{pid}(bn=${boardName}, pid=${postForm.postId})} : @{/board/{bn}/save(bn=${boardName})}"
               th:object="${postForm}"
-              method="post"
-              enctype="multipart/form-data">
+              method="post">
 
             <input type="hidden" th:field="*{postId}">
 
@@ -25,17 +28,7 @@
             </div>
 
             <div class="write-section">
-                <div class="image-upload-wrapper" onclick="document.getElementById('file-input').click()">
-                    <div class="upload-icon">📸</div>
-                    <p class="upload-text">クリックするか、画像をドラッグしてください</p>
-                    <p class="upload-subtext">（最大5MB、JPG、PNG）</p>
-                    <input type="file" id="file-input" name="images" multiple accept="image/*" style="display: none;" onchange="previewImages(this)">
-                </div>
-                <div id="image-preview-container" class="preview-container"></div>
-            </div>
-
-            <div class="write-section">
-                <textarea th:field="*{content}" class="write-textarea-content" placeholder="内容を入力してください。" required></textarea>
+                <textarea th:field="*{content}" id="summernote" class="write-textarea-content" required></textarea>
             </div>
 
             <div class="write-footer">
@@ -47,22 +40,50 @@
         </form>
     </div>
 
-    <script>
-        function previewImages(input) {
-            const container = document.getElementById('image-preview-container');
-            container.innerHTML = '';
-            if (input.files) {
-                Array.from(input.files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const div = document.createElement('div');
-                        div.className = 'preview-item';
-                        div.innerHTML = `<img src="${e.target.result}" style="width:100px; height:100px; object-fit:cover;"><span class="remove-btn" onclick="this.parentElement.remove()" style="cursor:pointer;">✕</span>`;
-                        container.appendChild(div);
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            $('#summernote').summernote({
+                height: 500,
+                focus: true,
+                lang: "ja-JP",
+                placeholder: '内容を入力してください。',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onImageUpload: function(files) {
+                        for (let i = 0; i < files.length; i++) {
+                            uploadImage(files[i], this);
+                        }
                     }
-                    reader.readAsDataURL(file);
-                });
-            }
+                }
+            });
+        });
+
+        function uploadImage(file, editor) {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            $.ajax({
+                url: '/api/image/upload',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(url) {
+                    // 成功時: サーバーから受け取ったURLで画像挿入
+                    $(editor).summernote('insertImage', url);
+                },
+                error: function() {
+                    alert("画像アップロードに失敗しました。");
+                }
+            });
         }
     </script>
 </div>

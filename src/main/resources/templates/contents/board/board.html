@@ -6,17 +6,51 @@
     <link rel="stylesheet" th:href="@{/css/board.css}">
 </head>
 <body>
-    <div th:fragment="board" class="page-wrapper">
-        <div class="board-container">
-            <div class="board-header">
-                <h2 th:text="${boardName}">掲示板名</h2>
-                <p class="board-description" th:text="${description}">説明文</p>
-            </div>
+<div th:fragment="board" class="page-wrapper">
+    <div class="board-container">
+        <div class="board-header">
+            <h2 th:text="${boardName}">掲示板名</h2>
+            <p class="board-description" th:text="${description}">説明文</p>
+        </div>
 
-            <div class="post-list-wrap">
-                <div th:replace="~{'contents/board/post/' + ${boardContent} :: ${boardContent}}"></div>
-            </div>
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
+            <button th:if="${#authorization.expression('isAuthenticated()')}"
+                    id="subscribe-btn"
+                    th:onclick="'toggleSubscription(' + ${boardId} + ')' "
+                    th:class="${isSubscribed} ? 'sub-btn active' : 'sub-btn'"
+                    th:text="${isSubscribed} ? '購読中' : '購読する'">
+            </button>
+        </div>
+
+        <div class="post-list-wrap">
+            <div th:replace="~{'contents/board/post/' + ${boardContent} :: ${boardContent}}"></div>
         </div>
     </div>
+
+    <script th:inline="javascript">
+        window.toggleSubscription = function(boardId) {
+            fetch('/api/subscription/' + boardId, {
+                method: 'POST'
+            })
+                .then(response => response.text())
+                .then(data => {
+                    const btn = document.getElementById('subscribe-btn');
+                    if (data === 'subscribed') {
+                        btn.innerText = '購読中';
+                        btn.classList.add('active');
+                    } else {
+                        btn.innerText = '購読する';
+                        btn.classList.remove('active');
+                    }
+                    // ヘッダーの購読リストを即座に反映させたい場合は、下のコメントを解除してください。
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("処理中にエラーが発生しました。");
+                });
+        };
+    </script>
+</div>
 </body>
 </html>

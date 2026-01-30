@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理者ページ</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+</head>
+<body style="padding: 50px;">
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1>🛠 掲示板管理 (Admin)</h1>
+    <a th:href="@{/}" style="padding: 10px 20px; background: #4b5563; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+        🏠 ホームに戻る
+    </a>
+</div>
+
+<hr style="margin-bottom: 30px; border: 0; border-top: 1px solid #eee;">
+
+<div style="background: #f3f4f6; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+    <h3>新しい掲示板を作成</h3>
+    <form th:action="@{/admin/boards/create}" method="post" style="display: flex; gap: 10px;">
+        <input type="text" name="name" placeholder="掲示板名" required style="padding: 10px; flex: 1;">
+        <input type="text" name="description" placeholder="掲示板の説明" style="padding: 10px; flex: 2;">
+        <button type="submit" style="padding: 10px 20px; background: #6366f1; color: white; border: none; border-radius: 5px; cursor: pointer;">作成する</button>
+    </form>
+</div>
+
+<h3>現在運営中の掲示板</h3>
+<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+    <tr style="background: #eee;">
+        <th style="padding: 10px; border: 1px solid #ddd;">ID</th>
+        <th style="padding: 10px; border: 1px solid #ddd;">名前</th>
+        <th style="padding: 10px; border: 1px solid #ddd;">説明</th>
+    </tr>
+    <tr th:each="b : ${boards}">
+        <td th:text="${b.boardId}" style="padding: 10px; border: 1px solid #ddd; text-align: center;"></td>
+        <td th:text="${b.name}" style="padding: 10px; border: 1px solid #ddd;"></td>
+        <td th:text="${b.description}" style="padding: 10px; border: 1px solid #ddd;"></td>
+    </tr>
+</table>
+
+<div style="margin-top: 50px;">
+    <h2>👤 ユーザー権限管理</h2>
+
+    <div style="background: #fff; padding: 20px; border: 1px solid #e5e7eb; border-radius: 10px; margin-bottom: 20px;">
+        <form th:action="@{/admin/users/search}" method="get" style="display: flex; gap: 10px;">
+            <input type="text" name="loginId" placeholder="検索するユーザーIDを入力" style="padding: 10px; flex: 1; border: 1px solid #ddd; border-radius: 5px;">
+            <button type="submit" style="padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 5px; cursor: pointer;">ユーザー検索</button>
+        </form>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead style="background: #f9fafb;">
+        <tr>
+            <th style="padding: 12px; border: 1px solid #ddd;">ログインID</th>
+            <th style="padding: 12px; border: 1px solid #ddd;">ニックネーム</th>
+            <th style="padding: 12px; border: 1px solid #ddd;">現在の権限</th>
+            <th style="padding: 12px; border: 1px solid #ddd;">権限変更</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}" style="text-align: center;">
+            <td th:text="${user.loginId}" style="padding: 10px; border: 1px solid #ddd;"></td>
+            <td th:text="${user.alias}" style="padding: 10px; border: 1px solid #ddd;"></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">
+                    <span th:text="${user.role}"
+                          th:classappend="${user.role.name() == 'ADMIN'} ? 'role-admin' : (${user.role.name() == 'MODERATOR'} ? 'role-mod' : 'role-user')"
+                          style="padding: 3px 8px; border-radius: 12px; font-size: 0.85em; font-weight: bold;">
+                    </span>
+            </td>
+            <td style="padding: 10px; border: 1px solid #ddd; display: flex; gap: 5px; justify-content: center;">
+                <form th:if="${user.role.name() == 'USER'}" th:action="@{/admin/users/update-role}" method="post">
+                    <input type="hidden" name="userId" th:value="${user.id}">
+                    <input type="hidden" name="newRole" value="MODERATOR">
+                    <button type="submit" style="padding: 5px 10px; background: #6366f1; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.8em;">モデレーターに昇格</button>
+                </form>
+
+                <form th:if="${user.role.name() == 'MODERATOR'}" th:action="@{/admin/users/update-role}" method="post">
+                    <input type="hidden" name="userId" th:value="${user.id}">
+                    <input type="hidden" name="newRole" value="USER">
+                    <button type="submit" style="padding: 5px 10px; background: #ef4444; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.8em;">一般ユーザーに降格</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(users)}">
+            <td colspan="4" style="padding: 30px; text-align: center; color: #999; border: 1px solid #ddd;">ユーザー情報がありません。</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .role-admin { background: #fee2e2; color: #b91c1c; } /* 赤系 */
+    .role-mod { background: #e0e7ff; color: #4338ca; }   /* 青系 */
+    .role-user { background: #f3f4f6; color: #374151; }  /* グレー系 */
+</style>
+</body>
+</html>
