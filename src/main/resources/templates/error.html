@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>エラーが発生しました</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #eef2ff;
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            color: #1e293b;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            max-width: 450px;
+            width: 90%;
+        }
+
+        .error-code {
+            font-size: 100px;
+            font-weight: 900;
+            margin: 0;
+            color: #6366f1;
+            letter-spacing: -2px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 10px 0 20px;
+        }
+
+        .desc {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 15px;
+        }
+
+        .btn-primary {
+            background-color: #6366f1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #4f46e5;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            border: 1px solid #cbd5e1;
+            color: #64748b;
+            background: white;
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.1);
+        }
+
+        .icon-box span {
+            font-size: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="icon-box">
+        <span>⚠️</span>
+    </div>
+    <h1 class="error-code" th:text="${status}">404</h1>
+
+    <div class="title" th:text="${status == 404 ? 'ページが見つかりません' : 'エラーが発生しました'}">
+        エラーが発生しました
+    </div>
+
+    <p class="desc">
+        お探しのページは削除されたか、URLが間違っている可能性があります。<br>
+        ご不便をおかけして申し訳ございません。
+    </p>
+
+    <div class="btn-group">
+        <a href="/" class="btn btn-primary">ホームへ戻る</a>
+        <a href="javascript:history.back()" class="btn btn-outline">前のページへ</a>
+    </div>
+</div>
+
+</body>
+</html>

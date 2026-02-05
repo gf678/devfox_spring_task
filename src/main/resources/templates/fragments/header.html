@@ -50,7 +50,6 @@
 
         <div class="right-group">
             <div th:if="${#authorization.expression('isAuthenticated()')}" class="user-section">
-                <img th:src="@{/img/icon_alarm.png}" alt="通知アイコン" class="alarm-icon">
                 <div class="profile" id="profile-pic" onclick="toggleMenu('profile-menu', event)">
                     <img th:src="${user?.profileImg != null ? user.profileImg : (#authentication.principal != 'anonymousUser' and #authentication.principal.profileImg != null ? #authentication.principal.profileImg : '/img/default_profile.png')}"
                          alt="ユーザープロフィール">

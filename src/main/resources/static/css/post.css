@@ -6,7 +6,15 @@
     padding-bottom: 20px;
     border-bottom: 1px solid #f3f4f6;
 }
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 
+.site-header {
+    height: 64px !important;
+    display: flex;
+    align-items: center;
+}
 .detail-title {
     font-size: 28px;
     font-weight: 700;
@@ -16,6 +24,12 @@
     word-break: keep-all;
 }
 
+.site-header {
+    height: 64px !important;
+    min-height: 64px !important;
+    display: flex !important;
+    align-items: center !important;
+}
 .detail-meta {
     font-size: 14px;
     color: #6b7280;

@@ -6,59 +6,54 @@
     <link rel="stylesheet" th:href="@{/css/sign.css}">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
-<body>
+<body class="auth-body">
 <div class="container" id="container">
-    <!-- Sign Up Form -->
     <div class="form-container sign-up-container">
         <form th:action="@{/api/signUp}" method="post">
             <h1>アカウント作成</h1>
-            <span>または、メールアドレスで登録</span>
             <input type="text" name="alias" placeholder="ニックネーム" required />
             <input type="text" name="loginId" placeholder="ID" required />
             <input type="email" name="email" placeholder="メールアドレス" required />
             <input type="password" name="password" placeholder="パスワード" required />
-            <button type="submit">登録</button>
+            <button type="submit" class="auth-btn">登録</button>
         </form>
     </div>
 
-    <!-- Sign In Form -->
     <div class="form-container sign-in-container">
         <form th:action="@{/api/signIn}" method="post">
             <h1>ログイン</h1>
-            <input type="id" name="id" placeholder="ID" required />
+            <input type="text" name="id" placeholder="ID" required />
             <input type="password" name="password" placeholder="パスワード" required />
-            <button type="submit">ログイン</button>
+            <button type="submit" class="auth-btn">ログイン</button>
         </form>
     </div>
 
-    <!-- Find Password Form -->
     <div class="form-container find-password-container">
         <form th:action="@{/find-password}" method="post">
             <h1>パスワードを探す</h1>
-            <span>登録時に入力したIDとメールアドレスを入力してください。</span>
-            <input type="id" name="id" placeholder="ID" required />
+            <p>登録したIDとメールアドレスを入力してください。</p>
+            <input type="text" name="id" placeholder="ID" required />
             <input type="email" name="email" placeholder="メールアドレス" required />
-            <button type="submit">メール送信</button>
+            <button type="submit" class="auth-btn">メール送信</button>
         </form>
     </div>
-    <!-- Overlay -->
+
     <div class="overlay-container">
         <div class="overlay">
             <div class="overlay-panel overlay-left">
-                <h1>おかえりなさい！</h1>
-                <p>続けてご利用いただくには、個人情報でログインしてください。</p>
-                <button class="ghost" id="signIn">ログイン</button>
+                <h1>おかえりなさい!</h1>
+                <p>続けてご利用いただくには、ログインしてください。</p>
+                <button class="auth-btn ghost" id="signIn">ログイン</button>
             </div>
             <div class="overlay-panel overlay-right">
                 <h1>Plug</h1>
                 <p>素敵な会話を楽しもう！</p>
-                <button class="ghost" id="signUp">アカウント作成</button></br>
-                <button class="ghost" id="findPassword">パスワードを忘れた場合</button>
+                <button class="auth-btn ghost" id="signUp">アカウント作成</button>
+                <button class="auth-btn ghost" id="findPassword" style="margin-top: 10px; padding: 10px 20px;">パスワードを忘れた場合</button>
             </div>
         </div>
     </div>
 </div>
-
-<script th:src="@{/js/sign.js}"></script>
+<script th:src="@{/js/sign.js}" defer></script>
 </body>
 </html>

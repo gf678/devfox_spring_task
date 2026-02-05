@@ -15,15 +15,15 @@ findPasswordForm.style.display = 'none';
 
 // Sign Upボタンクリック
 signUpButton.addEventListener('click', () => {
-    container.classList.add("right-panel-active"); // CSSアニメーションをトリガー (右パネルをアクティブに)
-    signUpForm.style.display = 'block';
-    signInForm.style.display = 'block';
-    findPasswordForm.style.display = 'none';      // パスワード再設定フォームは非表示
+    container.classList.add("right-panel-active");
+    container.classList.remove("find-pw-active"); // 비번찾기 모드 해제
 });
 
 // Sign Inボタンクリック
 signInButton.addEventListener('click', () => {
-    container.classList.remove("right-panel-active"); // CSSアニメーションをトリガー (デフォルトログイン画面に戻す)
+    container.classList.remove("right-panel-active"); // 왼쪽으로 다시 슬라이드
+    container.classList.remove("find-pw-active");
+
     signUpForm.style.display = 'block';
     signInForm.style.display = 'block';
     findPasswordForm.style.display = 'none';
@@ -31,10 +31,12 @@ signInButton.addEventListener('click', () => {
 
 // Forgot Passwordクリック
 findPasswordButton.addEventListener('click', () => {
-    container.classList.add("right-panel-active"); // アニメーション効果のためパネル移動
-    signUpForm.style.display = 'none';             // 会員登録フォーム非表示
-    signInForm.style.display = 'none';             // ログインフォーム非表示
-    findPasswordForm.style.display = 'block';      // パスワード再設定フォームのみ表示
+    container.classList.add("right-panel-active");
+    container.classList.add("find-pw-active"); // CSS에서 find-password-container를 보여주기 위한 클래스
+
+    signUpForm.style.display = 'none';
+    signInForm.style.display = 'none';
+    findPasswordForm.style.display = 'block';
 });
 
 // 4. AJAXを使用したfetch処理 (非同期)

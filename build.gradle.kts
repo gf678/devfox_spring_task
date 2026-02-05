@@ -43,8 +43,6 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
     implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
 
-    // MySQL
-    runtimeOnly("mysql:mysql-connector-java:8.1.0")
 
     // Test
     testImplementation ("org.springframework.boot:spring-boot-starter-test")

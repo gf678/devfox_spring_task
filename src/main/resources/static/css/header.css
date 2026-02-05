@@ -3,43 +3,47 @@
    ========================================================================== */
 body {
     margin: 0;
-    font-family: 'Pretendard', sans-serif; /* 폰트 설정 권장 */
+    font-family: 'Pretendard', sans-serif;
 }
 
 .site-header {
     background: #eef2ff;
-    padding: 10px 24px;
+    padding: 0 24px;
+    height: 64px;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* 양 끝 정렬 */
-    height: 60px; /* 높이 고정으로 안정감 부여 */
+    border-bottom: 1px solid #e2e8f0;
     box-sizing: border-box;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
-/* ==========================================================================
-   2. Left Group
-   ========================================================================== */
 .header-title {
     display: flex;
     align-items: center;
-    gap: 20px;
+    width: 100%;
+    gap: 24px;
 }
 
 .logo {
     width: 42px;
     display: block;
+    flex-shrink: 0;
 }
 
+/* ==========================================================================
+   2. Middle Group (Links & Search)
+   ========================================================================== */
 .header-links {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
+    flex-shrink: 0;
 }
 
-.header-links a,
-.header-links p {
-    margin: 0;
-    color: #1e293b;
+.dropdown-toggle {
+    color: #475569;
     text-decoration: none;
     font-size: 15px;
     font-weight: 500;
@@ -47,25 +51,22 @@ body {
     transition: color 0.2s;
 }
 
-.header-links a:hover {
+.dropdown-toggle:hover {
     color: #6366f1;
 }
 
-/* ==========================================================================
-   2-1. Search Bar
-   ========================================================================== */
 .search {
     position: relative;
-    width: 240px; /* 조금 더 넓게 조정 */
-    margin-left: 20px;
+    width: 240px;
+    margin-left: 0;
 }
 
 .search input {
     width: 100%;
-    background: #f8fafc;
-    border: 1px solid #cbd5e1;
+    background: #f1f5f9;
+    border: 1px solid transparent;
     border-radius: 8px;
-    padding: 8px 40px 8px 12px;
+    padding: 8px 36px 8px 12px;
     font-size: 14px;
     box-sizing: border-box;
     transition: all 0.2s;
@@ -80,46 +81,51 @@ body {
 
 .search-btn {
     position: absolute;
-    right: 12px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0;
+    display: flex;
 }
 
 .search-btn img {
     width: 16px;
-    opacity: 0.6;
+    opacity: 0.5;
 }
 
-/* ==========================================================================
-   2-1-1. Search Bar dropdown
-   ========================================================================== */
-.search-dropdown {
+.search-results {
     display: none;
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 12px);
     left: 0;
     width: 100%;
-    max-height: 300px;
-    overflow-y: auto;
     background: #fff;
+    border-radius: 12px;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     z-index: 1000;
+    padding: 8px 0;
+    overflow: hidden;
 }
 
-.search-dropdown.show { display: block; }
+.search-results.show {
+    display: block;
+    animation: dropdownFade 0.2s ease-out;
+}
 
 .search-item {
-    padding: 10px 15px;
     display: block;
-    text-decoration: none;
-    color: #334155;
+    width: 100%;
+    padding: 12px 16px;
     font-size: 14px;
+    color: #475569;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: all 0.2s;
+    text-align: left;
 }
 
 .search-item:hover {
@@ -127,13 +133,22 @@ body {
     color: #6366f1;
 }
 
+.no-result {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #94a3b8;
+    text-align: left;
+}
+
 /* ==========================================================================
-   3. Right Group (Alarm, Profile, Auth)
+   3. Right Group (Auth & Profile)
    ========================================================================== */
 .right-group {
     display: flex;
     align-items: center;
     gap: 16px;
+    flex-shrink: 0;
+    margin-left: auto;
 }
 
 .user-section {
@@ -145,63 +160,23 @@ body {
 .alarm-icon {
     width: 22px;
     cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s;
+    opacity: 0.6;
 }
-
-.alarm-icon:hover { opacity: 1; }
 
 .profile {
     position: relative;
     width: 36px;
     height: 36px;
-    background: #fff;
     border-radius: 50%;
     border: 1px solid #e2e8f0;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: visible;
 }
 
 .profile img {
-    width: 85%;
-    height: 85%;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     object-fit: cover;
-}
-
-.profile-menu {
-    display: none;
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    min-width: 160px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    border: 1px solid #e2e8f0;
-    z-index: 9999;
-    flex-direction: column;
-    padding: 6px 0;
-}
-
-.profile-menu.show { display: flex; }
-
-.profile-menu p, .logout-btn {
-    margin: 0;
-    padding: 10px 16px;
-    font-size: 14px;
-    color: #334155;
-    cursor: pointer;
-    text-align: left;
-    transition: background 0.2s;
-}
-
-.profile-menu p:hover, .logout-btn:hover {
-    background: #f1f5f9;
-    color: #6366f1;
 }
 
 .login-link {
@@ -210,58 +185,83 @@ body {
     font-size: 14px;
     font-weight: 600;
     padding: 8px 16px;
-    background: #fff;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
     transition: all 0.2s;
 }
 
 .login-link:hover {
-    background: #f8fafc;
     border-color: #6366f1;
     color: #6366f1;
 }
 
 /* ==========================================================================
-   5. channel,gallery dropdown (Dropdown Component)
+   4. Dropdown Components (All Unified)
    ========================================================================== */
-.header-links .dropdown {
+.dropdown {
     position: relative;
 }
 
-.dropdown-menu {
+/* 모든 드롭다운 공통 */
+.dropdown-menu, .profile-menu {
     display: none;
     position: absolute;
     top: calc(100% + 12px);
-    left: 0;
-    min-width: 200px;
     background: #fff;
-    border-radius: 8px;
+    border-radius: 12px;
     border: 1px solid #e2e8f0;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    z-index: 10000;
+    z-index: 1000;
     padding: 8px 0;
+    min-width: 180px;
+
+    overflow: hidden;
+}
+
+.dropdown-menu { left: 0; }
+.profile-menu {
+    right: 0;
+    top: calc(100% + 14px); /* 프로필 위치 조정 */
+}
+
+.dropdown-menu.show, .profile-menu.show {
+    display: block;
     animation: dropdownFade 0.2s ease-out;
 }
 
-.dropdown-menu.show { display: block; }
-
-.channel-item {
-    display: block;
-    padding: 12px 20px;
-    color: #334155;
-    text-decoration: none;
+/* 드롭다운 내부 아이템 */
+.channel-item, .profile-menu p, .logout-btn {
+    padding: 10px 16px;
     font-size: 14px;
+    color: #475569;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
     transition: all 0.2s;
 }
 
-.channel-item:hover {
+.channel-item:hover, .profile-menu p:hover, .logout-btn:hover {
     background-color: #f1f5f9;
     color: #6366f1;
-    padding-left: 24px;
+}
+
+.profile-menu hr {
+    border: 0;
+    border-top: 1px solid #f1f5f9;
+    margin: 4px 0;
+}
+
+.no-board {
+    padding: 10px 16px;
+    font-size: 13px;
+    color: #94a3b8;
 }
 
 @keyframes dropdownFade {
-    from { opacity: 0; transform: translateY(-5px); }
+    from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
