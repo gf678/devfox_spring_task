@@ -14,3 +14,11 @@ spring:
         format_sql: true
   jwt:
     secret: b3bff6d7121106fdec085a82415e7f2545bd58a27bbfaa8ef2d6dcda3a
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: Plug2922@gmail.com
+    password: bwmp wjre dqmr gier
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true

@@ -20,7 +20,7 @@
                         <span class="meta-date" th:text="${#temporals.format(post.createdAt, 'MM.dd')}">date</span>
 
                         <div class="meta-stats">
-                            <span class="stats-likes">👍 <th:block th:text="${post.likes}">0</th:block></span>
+                            <span class="stats-likes">👍 <th:block th:text="${post.likes - post.dislikes}">0</th:block></span>
                             <span class="stats-views">👁️ <th:block th:text="${post.views}">0</th:block></span>
                         </div>
                     </div>

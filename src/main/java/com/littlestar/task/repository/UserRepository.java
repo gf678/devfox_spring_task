@@ -19,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // ログインIDに部分一致するユーザーを検索
     List<User> findByLoginIdContaining(String loginId);
+
+    Optional<User> findByEmail(String email);
 }

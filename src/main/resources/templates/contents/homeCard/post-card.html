@@ -19,7 +19,7 @@
         <div class="card-meta">
             <span class="card-writer" th:text="${writer}">投稿者</span>
             <div class="card-stats">
-                <span>👍 <span th:text="${thumbs}">0</span></span>
+                <span>👍 <span th:text="${post.likes - post.dislikes}">0</span></span>
                 <span>💬 <span th:text="${comment}">0</span></span>
             </div>
         </div>

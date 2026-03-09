@@ -72,3 +72,41 @@ realSignUpForm.addEventListener('submit', (e) => {
             alert("ネットワークエラーが発生しました。");
         });
 });
+const resetForm = document.querySelector('.find-password-container form');
+
+if (resetForm) {
+
+    resetForm.addEventListener('submit', function(e) {
+
+        e.preventDefault(); // 기본 form submit 막기
+
+        const formData = new FormData(resetForm);
+
+        fetch('/password-reset', {
+            method: 'POST',
+            body: new URLSearchParams(formData)
+        })
+            .then(response => response.text())
+            .then(msg => {
+
+                alert(msg);
+
+                resetForm.reset();
+
+                // 로그인 화면 복귀
+                container.classList.remove("find-pw-active");
+                container.classList.remove("right-panel-active");
+
+                signUpForm.style.display = 'block';
+                signInForm.style.display = 'block';
+                findPasswordForm.style.display = 'none';
+
+            })
+            .catch(err => {
+                console.error(err);
+                alert("エラーが発生しました");
+            });
+
+    });
+
+}
