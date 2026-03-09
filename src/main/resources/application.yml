@@ -22,3 +22,7 @@ spring:
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
+
+server:
+  tomcat:
+    max-http-header-size: 65536

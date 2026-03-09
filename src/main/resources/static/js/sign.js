@@ -78,7 +78,7 @@ if (resetForm) {
 
     resetForm.addEventListener('submit', function(e) {
 
-        e.preventDefault(); // 기본 form submit 막기
+        e.preventDefault();
 
         const formData = new FormData(resetForm);
 
@@ -93,7 +93,6 @@ if (resetForm) {
 
                 resetForm.reset();
 
-                // 로그인 화면 복귀
                 container.classList.remove("find-pw-active");
                 container.classList.remove("right-panel-active");
 
