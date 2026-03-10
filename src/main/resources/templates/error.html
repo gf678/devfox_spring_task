@@ -114,10 +114,14 @@
         エラーが発生しました
     </div>
 
-    <p class="desc">
-        お探しのページは削除されたか、URLが間違っている可能性があります。<br>
-        ご不便をおかけして申し訳ございません。
-    </p>
+    <div class="desc">
+        <p>お探しのページは削除されたか、URLが間違っている可能性があります。<br>
+            ご不便をおかけして申し訳ございません。</p>
+
+        <div th:if="${errorMessage != null}" style="margin-top:20px; padding:10px; background:#fef2f2; color:#b91c1c; border-radius:8px; font-size:14px; line-height:1.4;">
+            <span th:text="${errorMessage}">ERROR MSG</span>
+        </div>
+    </div>
 
     <div class="btn-group">
         <a href="/" class="btn btn-primary">ホームへ戻る</a>
