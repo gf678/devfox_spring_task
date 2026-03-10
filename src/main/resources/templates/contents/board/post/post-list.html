@@ -30,7 +30,7 @@
         <div class="post-meta">
             <span th:text="${post.user != null ? post.user.alias : '不明'}">投稿者</span> |
             <span th:text="'閲覧数 ' + ${post.views}">表示 0</span> |
-            <span th:text="'いいね ' + ${post.likes}">いいね 0</span> |
+            <span th:text="'いいね ' + ${post.likes - post.dislikes}">いいね 0</span> |
             <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2026-01-23</span>
         </div>
     </div>

@@ -6,4 +6,8 @@ public interface CommentService {
     // 新しいコメントまたは返信を保存
     // 通常のコメントの場合は null、特定のコメントへの返信（リプライ）の場合はそのコメントのIDを渡す
     void saveComment(Long postId, String content, String loginId, Long parentId);
+
+    void updateComment(Long id, String content);
+
+    void deleteComment(Long id);
 }

@@ -50,4 +50,20 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("保存中にエラーが発生しました: " + e.getMessage());
         }
     }
+
+    @PostMapping("/{postId}/comments/update/{id}")
+    @ResponseBody
+    public String updateComment(@PathVariable Long id,
+                                @RequestBody Map<String,String> data) {
+
+        commentService.updateComment(id, data.get("content"));
+        return "ok";
+    }
+
+    @PostMapping("/{postId}/comments/delete/{id}")
+    public String deleteComment(@PathVariable Long id) {
+
+        commentService.deleteComment(id);
+        return "ok";
+    }
 }

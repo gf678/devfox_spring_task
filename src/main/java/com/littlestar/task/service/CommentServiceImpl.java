@@ -52,4 +52,24 @@ public class CommentServiceImpl implements CommentService {
         // 作成されたコメント（または返信）をDBに保存
         commentRepository.save(comment);
     }
+
+    @Override
+    @Transactional
+    public void updateComment(Long id, String content) {
+
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow();
+
+        comment.setContent(content);
+    }
+
+    @Override
+    @Transactional
+    public void deleteComment(Long id) {
+
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("コメントが存在しません"));
+
+        comment.setIsDeleted(true);
+    }
 }

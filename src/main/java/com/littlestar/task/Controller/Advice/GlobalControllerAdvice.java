@@ -12,10 +12,14 @@ import com.littlestar.task.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,5 +76,21 @@ public class GlobalControllerAdvice {
             User user = userService.findByLoginId(principal.getName());
             model.addAttribute("user", user);
         }
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public String handleMaxSizeException(RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("message", "ファイルサイズが大きすぎます。");
+        return "redirect:/board/upload"; // 업로드 페이지로 리다이렉트
+    }
+    @ExceptionHandler(Exception.class)
+    public String handleAllExceptions(Exception ex, Model model) {
+        model.addAttribute("status", 500); // 상태 코드
+        model.addAttribute("errorMessage", ex.getMessage()); // 오류 메시지
+        model.addAttribute("stackTrace", Arrays.stream(ex.getStackTrace())
+                .limit(5) // 스택 일부만
+                .map(StackTraceElement::toString)
+                .toArray());
+        return "error"; // th:html 파일 이름
     }
 }

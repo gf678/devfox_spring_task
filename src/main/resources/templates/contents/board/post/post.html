@@ -17,7 +17,7 @@
             <span class="meta-divider">|</span>
             <span class="detail-likes">閲覧数 <span th:text="${post.views}">123</span></span>
             <span class="meta-divider">|</span>
-            <span class="detail-likes">いいね <span th:text="${post.likes}">123</span></span>
+            <span class="detail-likes">いいね <span th:text="${post.likes - post.dislikes}">123</span></span>
         </div>
     </div>
 
@@ -92,16 +92,39 @@
                     <div th:if="${depth > 0}" style="color: #9ca3af;">ㄴ</div>
                     <div style="flex: 1;">
                         <div style="font-weight: bold; margin-bottom: 5px;" th:text="${comment.user.alias}">投稿者</div>
-                        <div th:text="${comment.content}">内容</div>
+                        <div>
+                            <span th:if="${comment.isDeleted}" style="color:#9ca3af;">削除されたコメントです。</span>
+                            <span th:unless="${comment.isDeleted}" th:text="${comment.content}">内容</span>
+                        </div>
+                        <div th:id="'edit-form-' + ${comment.commentId}" style="display:none; margin-top:5px;">
+                            <textarea th:text="${comment.content}" style="width:100%;"></textarea>
+                            <button type="button" class="save-edit" th:data-id="${comment.commentId}">保存</button>
+                            <button type="button" class="cancel-edit" th:data-id="${comment.commentId}">キャンセル</button>
+                        </div>
                         <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 5px;"
                              th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">時間</div>
 
                         <div style="margin-top: 5px;">
                             <button type="button" class="reply-btn"
+                                    th:unless="${comment.isDeleted}"
                                     th:data-id="${comment.commentId}"
                                     th:data-alias="${comment.user.alias}"
                                     style="font-size: 0.7rem; color: #6366f1; cursor: pointer; border: none; background: none; padding: 0;">
                                 返信を書く
+                            </button>
+
+                            <button th:if="${!comment.isDeleted and #authentication.name == comment.user.loginId}"
+                                    th:data-id="${comment.commentId}"
+                                    class="edit-btn"
+                                    style="font-size: 0.7rem; color: #10b981; cursor: pointer; border: none; background: none; padding: 0; margin-left:5px;">
+                                編集
+                            </button>
+
+                            <button th:if="${!comment.isDeleted and (#authentication.name == comment.user.loginId or #authorization.expression('hasAuthority(''ADMIN'') or hasAuthority(''MODERATOR'')'))}"
+                                    th:data-id="${comment.commentId}"
+                                    class="delete-btn"
+                                    style="font-size: 0.7rem; color: #fc4235; cursor: pointer; border: none; background: none; padding: 0; margin-left:5px;">
+                                削除
                             </button>
                         </div>
                     </div>
