@@ -6,20 +6,14 @@ import com.littlestar.task.repository.BoardRepository;
 import com.littlestar.task.repository.PostRepository;
 import com.littlestar.task.service.PostService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.Principal;
-import java.util.Objects;
 
-// 投稿の作成(Create)、編集(Update)、削除(Delete)リクエストを処理するコントローラー
 @Controller
 @RequiredArgsConstructor
 public class PostController {
@@ -34,16 +28,13 @@ public class PostController {
                              @ModelAttribute("post") PostForm form,
                              Principal principal) {
 
-
-        // ログイン中のユーザーIDを取得
         String loginId = principal.getName();
 
         // サービス層に保存処理を委譲
         postService.createPost(form, boardName, loginId);
 
-        // 保存後、掲示板一覧ページにリダイレクト（日本語対応）
-        String encodedBoardName = URLEncoder.encode(boardName, StandardCharsets.UTF_8);
-        return "redirect:/board/" + encodedBoardName + "/list";
+        // リダイレクト（AOPで自動エンコードされる）
+        return "redirect:/board/" + boardName + "/list";
     }
 
     // 投稿の編集
@@ -53,20 +44,15 @@ public class PostController {
                              @ModelAttribute("post") PostForm form,
                              Principal principal) {
 
-        // パス変数 postId をフォームオブジェクトに設定
         form.setPostId(postId);
 
-        // サービス層に編集処理を委譲
         postService.updatePost(form, boardName, principal.getName());
 
-        // 編集完了後、投稿詳細ページにリダイレクト
-        String encodedBoardName = URLEncoder.encode(boardName, StandardCharsets.UTF_8);
-        return "redirect:/board/" + encodedBoardName + "/list";
+        return "redirect:/board/" + boardName + "/list";
     }
 
-    // 投稿の削除（権限チェックあり）
+    // 投稿の削除
     @PostMapping("/board/{boardName}/delete/{postId}")
-    @Transactional
     public String deletePost(@PathVariable String boardName,
                              @PathVariable Long postId) {
 
@@ -75,7 +61,6 @@ public class PostController {
 
         postRepository.delete(post);
 
-        String encodedBoardName = URLEncoder.encode(boardName, StandardCharsets.UTF_8);
-        return "redirect:/board/" + encodedBoardName + "/list";
+        return "redirect:/board/" + boardName + "/list";
     }
 }
