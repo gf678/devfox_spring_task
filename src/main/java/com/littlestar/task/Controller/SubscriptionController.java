@@ -1,5 +1,7 @@
 package com.littlestar.task.Controller;
 
+import com.littlestar.task.Exception.BusinessException;
+import com.littlestar.task.Exception.ErrorCode;
 import com.littlestar.task.entity.Board;
 import com.littlestar.task.entity.Subscription;
 import com.littlestar.task.entity.User;
@@ -7,7 +9,6 @@ import com.littlestar.task.repository.BoardRepository;
 import com.littlestar.task.repository.SubscriptionRepository;
 import com.littlestar.task.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -29,16 +30,17 @@ public class SubscriptionController {
     @Transactional // トランザクション適用: 作業中に例外が発生した場合はDBロールバック、変更検知を有効化
     public ResponseEntity<String> toggleSubscription(@PathVariable Long boardId, Principal principal) {
 
-        // ログインしていないユーザーはアクセス不可
-        if (principal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (principal == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED1);
+        }
 
         // ログイン中のユーザーエンティティ取得
         User user = userRepository.findByLoginId(principal.getName())
-                .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません。"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND1));
 
         // 対象掲示板エンティティ取得
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new RuntimeException("掲示板が見つかりません。"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.BOARD_NOT_FOUND));
 
         // すでにサブスクリプション中か確認
         Optional<Subscription> existing = subscriptionRepository.findByUserAndBoard(user, board);

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.time.LocalDateTime;
 
 // ユーザーと掲示板の購読関係を管理するエンティティ
 // 特定のユーザーがお気に入り登録や購読した掲示板の情報を保存

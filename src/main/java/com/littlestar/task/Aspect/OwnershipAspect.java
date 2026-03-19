@@ -1,7 +1,7 @@
 package com.littlestar.task.Aspect;
 
-import com.littlestar.task.entity.Comment;
-import com.littlestar.task.entity.Post;
+import com.littlestar.task.Exception.BusinessException;
+import com.littlestar.task.Exception.ErrorCode;
 import com.littlestar.task.repository.CommentRepository;
 import com.littlestar.task.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class OwnershipAspect {
                     boolean hasPrivilege = auth.getAuthorities().stream()
                             .anyMatch(a -> a.getAuthority().equals("ADMIN") || a.getAuthority().equals("MODERATOR"));
                     if (!isOwner && !hasPrivilege) {
-                        throw new RuntimeException("投稿の修正／削除権限がありません。");
+                        throw new BusinessException(ErrorCode.FORBIDDEN1);
                     }
                 });
 
@@ -45,7 +45,7 @@ public class OwnershipAspect {
                     boolean hasPrivilege = auth.getAuthorities().stream()
                             .anyMatch(a -> a.getAuthority().equals("ADMIN") || a.getAuthority().equals("MODERATOR"));
                     if (!isOwner && !hasPrivilege) {
-                        throw new RuntimeException("コメントの修正／削除権限がありません。");
+                        throw new BusinessException(ErrorCode.FORBIDDEN1);
                     }
                 });
             }

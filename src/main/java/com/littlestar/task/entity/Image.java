@@ -11,31 +11,29 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PostImage {
+public class Image {
 
-    // 画像識別番号 (PK)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
 
-    // Postとの多対一(N:1)関係
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    private Post post; // 外部キー(FK)
+    @JoinColumn(name = "post_id", nullable = true)
+    private Post post;
 
-    // 保存された画像ファイルのパスまたはURL
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = true)
+    private User user;
+
     @Column(nullable = false)
     private String imageUrl;
 
-    // 投稿内で画像が表示される順序
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer sortOrder;
 
-    // 画像登録日時
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    // エンティティ保存前に実行されるメソッド
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();

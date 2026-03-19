@@ -1,5 +1,7 @@
 package com.littlestar.task.service;
 
+import com.littlestar.task.Exception.BusinessException;
+import com.littlestar.task.Exception.ErrorCode;
 import com.littlestar.task.entity.Comment;
 import com.littlestar.task.entity.Post;
 import com.littlestar.task.entity.User;
@@ -26,11 +28,11 @@ public class CommentServiceImpl implements CommentService {
 
         // コメントを投稿する記事が実際に存在するかDBで確認
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("記事が存在しません。"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
         // ログイン中のIDを基に作成者情報を取得
         User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new IllegalArgumentException("ユーザーが存在しません。"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND1));
 
         // コメントオブジェクトを作成し基本情報を設定
         Comment comment = new Comment();
@@ -43,7 +45,7 @@ public class CommentServiceImpl implements CommentService {
         if (parentId != null) {
             // 親コメントが実際に存在するか確認
             Comment parent = commentRepository.findById(parentId)
-                    .orElseThrow(() -> new IllegalArgumentException("親コメントが存在しません。"));
+                    .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND2));
 
             // 現在のコメントを親コメントの子として設定
             comment.setParent(parent);
@@ -68,7 +70,7 @@ public class CommentServiceImpl implements CommentService {
     public void deleteComment(Long id) {
 
         Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("コメントが存在しません"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND1));
 
         comment.setIsDeleted(true);
     }

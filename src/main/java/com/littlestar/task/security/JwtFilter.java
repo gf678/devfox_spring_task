@@ -2,6 +2,7 @@ package com.littlestar.task.security;
 
 import com.littlestar.task.entity.Role;
 import com.littlestar.task.entity.User;
+import com.littlestar.task.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -22,6 +23,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -57,11 +59,8 @@ public class JwtFilter extends OncePerRequestFilter {
             Role role = Role.valueOf(jwtUtil.getRole(token));
 
             // 認証処理用の一時的な User エンティティおよび CustomUserDetails を作成
-            User user = User.builder()
-                    .loginId(username)
-                    .password("N/A") // 認証が完了しているため、パスワードは不要
-                    .role(role)
-                    .build();
+            User user = userRepository.findByLoginId(username)
+                    .orElseThrow(() -> new RuntimeException("ユーザーがいません。"));
 
             CustomUserDetails customUserDetails = new CustomUserDetails(user);
 

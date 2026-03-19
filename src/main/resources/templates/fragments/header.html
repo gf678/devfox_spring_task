@@ -54,7 +54,7 @@
                     <img th:src="${user?.profileImg != null ? user.profileImg : (#authentication.principal != 'anonymousUser' and #authentication.principal.profileImg != null ? #authentication.principal.profileImg : '/img/default_profile.png')}"
                          alt="ユーザープロフィール">
                     <div class="profile-menu" id="profile-menu">
-                        <p><b th:text="${#authentication.name}">ユーザー</b>様</p>
+                        <p><b th:text="${#authentication.principal.alias}">ユーザー</b>様</p>
                         <hr>
                         <div th:if="${#authorization.expression('hasAuthority(''ADMIN'')') or #authorization.expression('hasAuthority(''ROLE_ADMIN'')')}">
                             <p><a th:href="@{/admin/boards}" style="color: #6366f1; font-weight: bold; text-decoration: none;">🛠 管理者ページ</a></p>

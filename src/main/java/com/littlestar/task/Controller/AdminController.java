@@ -1,5 +1,7 @@
 package com.littlestar.task.Controller;
 
+import com.littlestar.task.Exception.BusinessException;
+import com.littlestar.task.Exception.ErrorCode;
 import com.littlestar.task.entity.Board;
 import com.littlestar.task.entity.Role;
 import com.littlestar.task.entity.User;
@@ -45,11 +47,11 @@ public class AdminController {
     @Transactional
     public String updateUserRole(@RequestParam Long userId, @RequestParam String newRole) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("存在しないユーザーです。"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND2));
 
         // 管理者権限は変更できません。
         if (user.getRole() == Role.ADMIN) {
-            throw new IllegalStateException("最高管理者の権限は変更できません。");
+            throw new BusinessException(ErrorCode.FORBIDDEN2);
         }
 
         // 受け取った文字列をRole Enumに変換して保存

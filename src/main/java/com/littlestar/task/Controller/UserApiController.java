@@ -23,48 +23,28 @@ public class UserApiController {
     // 会員登録処理
     @PostMapping("/signUp")
     public ResponseEntity<String> signUp(UserForm form) {
-        try {
-            // サービスでビジネスロジックを実行
-            // - IDの重複チェック
-            // - パスワードを暗号化して保存
-            userService.signUp(form);
-            return ResponseEntity.ok("SUCCESS");
-        } catch (IllegalArgumentException e) {
-            // 既存IDなどの論理エラーの場合 400返却
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            // DBエラーなどサーバー内部エラーの場合 500返却
-            return ResponseEntity.internalServerError().body("サーバーエラーが発生しました。");
-        }
+        userService.signUp(form);
+        return ResponseEntity.ok("SUCCESS");
     }
 
     // ログイン処理 (JWT発行およびCookie保存)
     @PostMapping("/signIn")
-    public String signIn(@RequestParam("id") String loginId,
-                         @RequestParam("password") String password,
-                         HttpServletResponse response) {
+    public ResponseEntity<String> signIn(@RequestParam String id,
+                                         @RequestParam String password,
+                                         HttpServletResponse response) {
 
-        // サービスでID/PWの一致確認とユーザー情報取得
-        User user = userService.signIn(loginId, password);
+        User user = userService.signIn(id, password);
 
-        if (user != null) {
-            // 認証成功時にJWTトークンを生成 (ID, 権限, 有効期限1時間)
-            String token = jwtUtil.createJwt(user.getLoginId(), user.getRole().name(), 60 * 60 * 1000L);
+        String token = jwtUtil.createJwt(user.getLoginId(), user.getRole().name(), 60 * 60 * 1000L);
 
-            // 生成したトークンをCookieに保存してクライアントに送信
-            Cookie cookie = new Cookie("Authorization", token);
-            cookie.setHttpOnly(true); // JSからアクセス不可、XSS対策
-            cookie.setPath("/");      // 全てのパスで使用可能
-            cookie.setMaxAge(60 * 60); // 1時間
+        Cookie cookie = new Cookie("Authorization", token);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60);
 
-            response.addCookie(cookie);
+        response.addCookie(cookie);
 
-            // ログイン成功後、メインページへリダイレクト
-            return "redirect:/";
-        } else {
-            // 認証失敗時、エラーパラメータ付きでログインページへリダイレクト
-            return "redirect:/login?error=true";
-        }
+        return ResponseEntity.ok("SUCCESS");
     }
 
     // ログアウト処理 (Cookie削除)

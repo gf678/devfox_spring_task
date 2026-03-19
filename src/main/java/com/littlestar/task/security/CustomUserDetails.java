@@ -33,6 +33,8 @@ public class CustomUserDetails implements UserDetails {
         return user.getLoginId();
     }
 
+    public String getAlias() {return user.getAlias();}
+
     // ユーザーのプロフィール画像を返す
     public String getProfileImg() {
         return user.getProfileImg();

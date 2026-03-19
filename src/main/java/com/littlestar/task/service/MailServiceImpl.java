@@ -1,5 +1,8 @@
 package com.littlestar.task.service;
 
+import com.littlestar.task.Exception.BusinessException;
+import com.littlestar.task.Exception.ErrorCode;
+
 import com.littlestar.task.entity.PasswordResetToken;
 import com.littlestar.task.entity.User;
 import com.littlestar.task.repository.PasswordResetTokenRepository;
@@ -38,7 +41,7 @@ public class MailServiceImpl implements MailService {
 
         // メールアドレスでユーザー検索
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません。"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND1));
 
         // ランダムトークン生成
         String token = UUID.randomUUID().toString();
@@ -79,11 +82,11 @@ public class MailServiceImpl implements MailService {
 
         // トークン検索
         PasswordResetToken resetToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("無効なトークンです。"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED2));
 
         // トークン有効期限チェック
         if (resetToken.getExpireDate().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("トークンの有効期限が切れました。");
+            throw new BusinessException(ErrorCode.UNAUTHORIZED3);
         }
 
         // トークンに紐づくユーザー取得

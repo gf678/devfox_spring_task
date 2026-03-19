@@ -34,6 +34,10 @@ public class User {
     @Column(name = "alias", nullable = false, unique = true, length = 50)
     private String alias;
 
+    @OneToOne
+    @JoinColumn(name = "profile_image_id")
+    private Image profileImage;
+
     // メールアドレス (重複不可)
     @Column(unique = true, length = 100)
     private String email;

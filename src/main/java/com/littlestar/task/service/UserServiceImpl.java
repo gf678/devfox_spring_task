@@ -1,7 +1,11 @@
 package com.littlestar.task.service;
 
+import com.littlestar.task.Exception.BusinessException;
+import com.littlestar.task.Exception.ErrorCode;
+import com.littlestar.task.Exception.MessageException;
 import com.littlestar.task.domain.UserEditForm;
 import com.littlestar.task.domain.UserForm;
+import com.littlestar.task.entity.Image;
 import com.littlestar.task.entity.Role;
 import com.littlestar.task.entity.User;
 import com.littlestar.task.repository.UserRepository;
@@ -56,15 +60,13 @@ public class UserServiceImpl implements UserService {
     }
 
     // ログイン認証処理
-    @Override
     public User signIn(String loginId, String password) {
-        // IDでユーザー情報を取得
-        User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new IllegalArgumentException("存在しないIDです。"));
 
-        // パスワード一致確認: BCryptは単方向暗号化のため matches メソッドで比較
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new MessageException("このIDを使用しているユーザーがいません。"));
+
         if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
-            throw new IllegalArgumentException("パスワードが一致しません。");
+            throw new MessageException("パスワードが間違っています。");
         }
 
         return user;
@@ -75,12 +77,15 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateUserInfo(String loginId, UserEditForm form) {
         User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new RuntimeException("ユーザーを見つけられません。"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND1));
 
         // プロフィール画像更新: 新しいファイルがある場合のみ既存パスを置換
         if (form.getImageFile() != null && !form.getImageFile().isEmpty()) {
-            String savedPath = imageService.saveImage(form.getImageFile());
-            user.setProfileImg(savedPath);
+
+            Image image = imageService.saveProfileImage(form.getImageFile(), user);
+
+            user.setProfileImg(image.getImageUrl());
+            user.setProfileImage(image);
         }
 
         // 基本情報変更
@@ -122,6 +127,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByLoginId(String loginId) {
         return userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new RuntimeException("該当するユーザーが見つかりません: " + loginId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND1));
     }
 }

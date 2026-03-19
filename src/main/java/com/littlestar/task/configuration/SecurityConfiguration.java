@@ -1,5 +1,6 @@
 package com.littlestar.task.configuration;
 
+import com.littlestar.task.repository.UserRepository;
 import com.littlestar.task.security.JwtFilter;
 import com.littlestar.task.security.JwtUtil;
 import com.littlestar.task.security.LoginFilter;
@@ -22,6 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
+    private final UserRepository userRepository;
     // 認証マネージャー生成のための設定Bean
     private final AuthenticationConfiguration authenticationConfiguration;
     // JWT処理ユーティリティBean
@@ -61,7 +63,7 @@ public class SecurityConfiguration {
                 // フィルターの配置
 
                 // JwtFilter：各リクエストごとにJWTトークンの有効性を検証
-                .addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class)
 
                 // LoginFilter：「/login」リクエスト時にID・パスワードを受け取り認証を処理
                 .addFilterAt(new LoginFilter(authenticationManager(), jwtUtil), UsernamePasswordAuthenticationFilter.class)

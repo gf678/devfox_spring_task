@@ -22,12 +22,10 @@ public class LoginController {
     @PostMapping("/password-reset")
     @ResponseBody
     public String requestReset(@RequestParam String email) {
-        try {
-            mailService.sendResetMail(email);
-            return "パスワード再設定メールを送信しました。";
-        } catch (RuntimeException e) {
-            return e.getMessage(); // HTML이 아니라 메시지만 반환
-        }
+
+        mailService.sendResetMail(email);
+
+        return "パスワード再設定メールを送信しました。";
     }
 
     // 비밀번호 변경

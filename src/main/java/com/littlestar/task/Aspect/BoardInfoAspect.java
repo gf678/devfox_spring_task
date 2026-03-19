@@ -1,5 +1,7 @@
 package com.littlestar.task.Aspect;
 
+import com.littlestar.task.Exception.BusinessException;
+import com.littlestar.task.Exception.ErrorCode;
 import com.littlestar.task.entity.Board;
 import com.littlestar.task.repository.BoardRepository;
 import com.littlestar.task.repository.SubscriptionRepository;
@@ -9,8 +11,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
-import org.springframework.data.domain.*;
-import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
@@ -26,7 +26,7 @@ public class BoardInfoAspect {
     @Before("execution(* com.littlestar.task.Controller.BoardController.*(..)) && args(boardName, .., model, principal)")
     public void injectBoardInfo(String boardName, Model model, Principal principal) {
         Board board = boardRepository.findByName(boardName)
-                .orElseThrow(() -> new RuntimeException("掲示板が見つかりません： " + boardName));
+                .orElseThrow(() -> new BusinessException(ErrorCode.BOARD_NOT_FOUND));
 
         boolean isSubscribed = false;
         if (principal != null) {

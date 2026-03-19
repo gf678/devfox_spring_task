@@ -1,5 +1,7 @@
 package com.littlestar.task.Controller;
 
+import com.littlestar.task.Exception.BusinessException;
+import com.littlestar.task.Exception.ErrorCode;
 import com.littlestar.task.domain.PostForm;
 import com.littlestar.task.entity.Post;
 import com.littlestar.task.repository.BoardRepository;
@@ -57,7 +59,7 @@ public class PostController {
                              @PathVariable Long postId) {
 
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("投稿が見つかりません。"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
         postRepository.delete(post);
 

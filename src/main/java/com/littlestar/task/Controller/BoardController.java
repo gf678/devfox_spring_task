@@ -1,5 +1,7 @@
 package com.littlestar.task.Controller;
 
+import com.littlestar.task.Exception.BusinessException;
+import com.littlestar.task.Exception.ErrorCode;
 import com.littlestar.task.domain.PostForm;
 import com.littlestar.task.entity.Post;
 import com.littlestar.task.repository.PostRepository;
@@ -96,7 +98,7 @@ public class BoardController {
 
         // 編集対象投稿を取得
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("投稿が見つかりません。"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
         // PostFormに既存データをセット
         PostForm form = new PostForm();

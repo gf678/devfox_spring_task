@@ -1,21 +1,20 @@
 package com.littlestar.task.service;
 
+import com.littlestar.task.Exception.BusinessException;
+import com.littlestar.task.Exception.ErrorCode;
 import com.littlestar.task.domain.PostForm;
-import com.littlestar.task.entity.Board;
-import com.littlestar.task.entity.Post;
-import com.littlestar.task.entity.PostReaction;
-import com.littlestar.task.entity.User;
-import com.littlestar.task.repository.BoardRepository;
-import com.littlestar.task.repository.PostReactionRepository;
-import com.littlestar.task.repository.PostRepository;
-import com.littlestar.task.repository.UserRepository;
+import com.littlestar.task.entity.*;
+import com.littlestar.task.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+
+
+import java.util.*;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Transactional
@@ -26,17 +25,18 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final PostReactionRepository postReactionRepository;
+    private final ImageRepository imageRepository;
 
     // 新しい投稿を作成
     @Override
     public void createPost(PostForm form, String boardName, String loginId) {
         // ユーザーを取得
         User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new RuntimeException("該当するユーザーが見つかりません: " + loginId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND1));
 
         // 掲示板を取得
         Board board = boardRepository.findByName(boardName)
-                .orElseThrow(() -> new RuntimeException("掲示板 '" + boardName + "' が見つかりません。"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.BOARD_NOT_FOUND));
 
         // エンティティ作成およびデータマッピング
         Post post = new Post();
@@ -47,17 +47,41 @@ public class PostServiceImpl implements PostService {
 
         // 保存
         postRepository.save(post);
+        List<String> urls = extractImageUrls(form.getContent());
+
+        for (String url : urls) {
+            Image image = (Image) imageRepository.findByImageUrl(url).orElse(null);
+
+            if (image != null) {
+                image.setPost(post);
+            }
+        }
+    }
+
+    private List<String> extractImageUrls(String content) {
+        List<String> urls = new ArrayList<>();
+
+        if (content == null) return urls;
+
+        Pattern pattern = Pattern.compile("<img[^>]+src=[\"']([^\"']+)[\"']");
+        Matcher matcher = pattern.matcher(content);
+
+        while (matcher.find()) {
+            urls.add(matcher.group(1));
+        }
+
+        return urls;
     }
 
     // 既存の投稿を更新
     @Override
     public void updatePost(PostForm form, String boardName, String loginId) {
         Post post = postRepository.findById(form.getPostId())
-                .orElseThrow(() -> new RuntimeException("投稿が見つかりません。"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
         // 作成者とログインユーザーが一致するかチェック
         if (!post.getUser().getLoginId().equals(loginId)) {
-            throw new RuntimeException("修正権限がありません。");
+            throw new BusinessException(ErrorCode.FORBIDDEN1);
         }
 
         // ダーティチェッキングによる更新
@@ -69,12 +93,13 @@ public class PostServiceImpl implements PostService {
     @Override
     public void deletePost(Long postId, String loginId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("削除対象の投稿が見つかりません。"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
         // 作成者とログインユーザーが一致するかチェック
         if (!post.getUser().getLoginId().equals(loginId)) {
-            throw new RuntimeException("削除権限がありません。");
+            throw new BusinessException(ErrorCode.FORBIDDEN1);
         }
+
         postRepository.delete(post);
     }
 

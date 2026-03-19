@@ -1,5 +1,10 @@
 package com.littlestar.task.Controller;
 
+import com.littlestar.task.Exception.BusinessException;
+import com.littlestar.task.Exception.ErrorCode;
+import com.littlestar.task.entity.Image;
+import com.littlestar.task.entity.User;
+import com.littlestar.task.repository.UserRepository;
 import com.littlestar.task.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,17 +14,22 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class ImageController {
 
-    // 1. 画像サービスBeanの登録
     private final ImageService imageService;
+    private final UserRepository userRepository;
 
-    // 2. クライアントから画像を受け取り、サーバーに保存してアクセス可能なURLを返却
-    @PostMapping("/api/image/upload")
-    public String uploadImage(@RequestParam("file") MultipartFile file) {
+    @PostMapping("/api/image/post")
+    public String uploadPostImage(@RequestParam("file") MultipartFile file) {
+        return imageService.savePostImage(file, null, 0);
+    }
 
-        // 2-1. 画像サービスを呼び出して物理ストレージにファイルを保存
-        String imageUrl = imageService.saveImage(file);
+    @PostMapping("/api/image/profile")
+    public Image uploadProfileImage(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam String loginId
+    ) {
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND1));
 
-        // 2-2. URLが正常に生成された場合は返却、失敗した場合は "error" を返してフロントで例外処理
-        return (imageUrl != null) ? imageUrl : "error";
+        return imageService.saveProfileImage(file, user);
     }
 }
