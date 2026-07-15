@@ -50,6 +50,8 @@ dependencies {
     testImplementation ("org.springframework.security:spring-security-test")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
     testRuntimeOnly ("org.junit.platform:junit-platform-launcher")
+    testImplementation ("org.springframework.boot:spring-boot-starter-test")
+    testImplementation ("org.mockito:mockito-core")
 
     // Devtools
     developmentOnly("org.springframework.boot:spring-boot-devtools")

@@ -34,11 +34,4 @@ public class GlobalExceptionHandler {
                 .body(e.getMessage());
     }
 
-    @ExceptionHandler(MessageException.class)
-    public ResponseEntity<String> handleMessage(MessageException e) {
-        return ResponseEntity
-                .badRequest()
-                .body(e.getMessage());
-    }
-
 }

@@ -1,56 +1,129 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>board</title>
-    <link rel="stylesheet" th:href="@{/css/board.css}">
-</head>
-<body>
-<div th:fragment="board" class="page-wrapper">
-    <div class="board-container">
-        <div class="board-header">
-            <h2 th:text="${boardName}">掲示板名</h2>
-            <p class="board-description" th:text="${description}">説明文</p>
+import React, { useEffect, useState } from "react";
+import "../../styles/board.css";
+import api from "../../api/axios";
+
+interface Post {
+  postId: number;
+  title: string;
+  createdAt: string;
+  likes: number;
+  dislikes: number;
+  views: number;
+  user?: {
+    alias: string;
+  };
+}
+
+interface Props {
+  boardId: number;
+  boardName: string;
+  description: string;
+  isAuthenticated: boolean;
+  isSubscribed: boolean;
+}
+
+const Board: React.FC<Props> = ({
+  boardId,
+  boardName,
+  description,
+  isAuthenticated,
+  isSubscribed,
+}) => {
+  const [subscribed, setSubscribed] = useState(isSubscribed);
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [boardName]);
+
+  const fetchPosts = async () => {
+    try {
+      const res = await api.get(`/api/posts/${boardName}`);
+
+      const data = Array.isArray(res.data)
+        ? res.data
+        : res.data?.data ?? [];
+
+      setPosts(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const toggleSubscription = async () => {
+    try {
+      const res = await api.post(`/api/subscription/${boardId}`);
+      const result = res.data;
+
+      setSubscribed(result === "subscribed");
+
+      // Thymeleaf처럼 즉시 반영 느낌
+      await api.get("/api/boards/subscribed");
+    } catch (e) {
+      console.error(e);
+      alert("処理中にエラーが発生しました。");
+    }
+  };
+
+  const formatDate = (date: string) => {
+    const d = new Date(date);
+    return `${(d.getMonth() + 1).toString().padStart(2, "0")}.${d
+      .getDate()
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  return (
+    <div className="page-wrapper">
+      <div className="board-container">
+
+        {/* HEADER */}
+        <div className="board-header">
+          <h2>{boardName}</h2>
+          <p className="board-description">{description}</p>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
-            <button th:if="${#authorization.expression('isAuthenticated()')}"
-                    id="subscribe-btn"
-                    th:onclick="'toggleSubscription(' + ${boardId} + ')' "
-                    th:class="${isSubscribed} ? 'sub-btn active' : 'sub-btn'"
-                    th:text="${isSubscribed} ? '購読中' : '購読する'">
+        {/* SUBSCRIBE BUTTON */}
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "8px" }}>
+          {isAuthenticated && (
+            <button
+              onClick={toggleSubscription}
+              className={`sub-btn ${subscribed ? "active" : ""}`}
+            >
+              {subscribed ? "購読中" : "購読する"}
             </button>
+          )}
         </div>
 
-        <div class="post-list-wrap">
-            <div th:replace="~{'contents/board/post/' + ${boardContent} :: ${boardContent}}"></div>
+        {/* POSTS */}
+        <div className="post-list-wrap">
+          {posts.length > 0 ? (
+            posts.map((post) => (
+              <div key={post.postId} className="post-item">
+
+                <div className="post-title">
+                  {post.title}
+                </div>
+
+                <div className="post-meta">
+                  <span>{post.user?.alias ?? "匿名"}</span>
+
+                  <span>{formatDate(post.createdAt)}</span>
+
+                  <span>👍 {post.likes - post.dislikes}</span>
+                  <span>👁 {post.views}</span>
+                </div>
+
+              </div>
+            ))
+          ) : (
+            <div className="no-post">投稿がありません</div>
+          )}
         </div>
+
+      </div>
     </div>
+  );
+};
 
-    <script th:inline="javascript">
-        window.toggleSubscription = function(boardId) {
-            fetch('/api/subscription/' + boardId, {
-                method: 'POST'
-            })
-                .then(response => response.text())
-                .then(data => {
-                    const btn = document.getElementById('subscribe-btn');
-                    if (data === 'subscribed') {
-                        btn.innerText = '購読中';
-                        btn.classList.add('active');
-                    } else {
-                        btn.innerText = '購読する';
-                        btn.classList.remove('active');
-                    }
-                    // ヘッダーの購読リストを即座に反映させたい場合は、下のコメントを解除してください。
-                    location.reload();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert("処理中にエラーが発生しました。");
-                });
-        };
-    </script>
-</div>
-</body>
-</html>
+export default Board;
